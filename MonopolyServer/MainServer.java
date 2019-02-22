@@ -26,9 +26,9 @@ public class MainServer {
 
 	public boolean build() {
 		try {
-			// Class.forName(DBDRIVER);
+			Class.forName(DBDRIVER);
 			server = new ServerSocket(this.port);
-			// dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
+			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
 			System.out.println("Server launched...");
 			return true;
 		} catch (Exception e) {

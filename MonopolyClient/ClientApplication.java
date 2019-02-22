@@ -23,7 +23,7 @@ public class ClientApplication extends Application{
 		root = new Group();
 		Scene scene = new Scene(root,WIDTH,HEIGHT);
 		client = new MainClient(SERVERIP,PORT);
-		//client.connect();
+		client.connect();
 		stage.setScene(scene);
 		stage.setTitle("Monopoly");
 		stage.setResizable(false);
@@ -103,7 +103,7 @@ public class ClientApplication extends Application{
 		root.getChildren().add(prompt);
 	}
 	public void mainPage() {
-		
+		root.getChildren().clear();
 	}
 	public static void main(String[] args) {
 		launch(args);
