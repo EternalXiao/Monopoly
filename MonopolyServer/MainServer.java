@@ -17,7 +17,7 @@ public class MainServer {
 	private int port;
 	ServerSocket server;
 	Connection dbCon;
-	LinkedList<Socket> connectedClients;
+	LinkedList<ServerThread> connectedClients;
 
 	public MainServer(int port) {
 		this.port = port;
@@ -39,10 +39,12 @@ public class MainServer {
 
 	public void close() throws Exception {
 		System.out.println("Server closing...");
+		for(ServerThread st:this.connectedClients) {
+		}
 		this.server.close();
 	}
 
-	public void listen() throws Exception {
+	public void listen(){
 		Scanner keyIn = new Scanner(System.in);
 		new Thread(() -> {
 			while (true) {
@@ -60,10 +62,15 @@ public class MainServer {
 		}).start();
 		while (true) {
 			System.out.println("Waiting for client connecting...");
-			Socket client = server.accept();
-			connectedClients.add(client);
-			System.out.println("One client connected...");
-			new Thread(new ServerThread(client, dbCon,this)).start();
+			try {
+				Socket client = server.accept();
+				System.out.println("One client connected...");
+				ServerThread ST = new ServerThread(client, dbCon,this);
+				this.connectedClients.add(ST);
+				ST.start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
