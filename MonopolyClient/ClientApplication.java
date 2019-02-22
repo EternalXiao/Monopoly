@@ -38,7 +38,7 @@ public class ClientApplication extends Application{
 		PasswordField passwordField = new PasswordField();
 		Text usernameText = new Text("Username");
 		Text passwordText = new Text("Password");
-		Text loginFail = new Text("Incorrect username or password");
+		Text prompt = new Text();
 		login.setText("Login");
 		signUp.setText("Sign Up");
 		login.setLayoutX(600);
@@ -56,17 +56,42 @@ public class ClientApplication extends Application{
 		//usernameText.setStyle("-fx-font-size:50px");
 		passwordText.setX(450);
 		passwordText.setY(340);
-		loginFail.setLayoutX(500);
-		loginFail.setLayoutY(250);
-		loginFail.setVisible(false);
-		loginFail.setFill(Color.RED);
+		prompt.setLayoutX(500);
+		prompt.setLayoutY(250);
+		prompt.setVisible(false);
 		login.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
 			String username = usernameField.getText();
 			String password = passwordField.getText();
 			if(client.login(username, password))
 				mainPage();
 			else {
-				loginFail.setVisible(true);
+				prompt.setText("Incorrect username or password");
+				prompt.setFill(Color.RED);
+				prompt.setVisible(true);
+			}
+		});
+		signUp.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
+			String username = usernameField.getText();
+			String password = passwordField.getText();
+			if(username.length()<6 || username.length()>15) {
+				prompt.setText("The length of username should be greater than 5 and less than 16");
+				prompt.setFill(Color.RED);
+				prompt.setVisible(true);
+			}
+			else if(password.length()<8 || password.length()>15){
+				prompt.setText("The length of password should be greater than 7 and less than 16");
+				prompt.setFill(Color.RED);
+				prompt.setVisible(true);
+			}
+			else if(client.signUp(username, password)) {
+				prompt.setText("Account create successful!");
+				prompt.setFill(Color.GREEN);
+				prompt.setVisible(true);
+			}
+			else {
+				prompt.setText("Username has been used");
+				prompt.setFill(Color.RED);
+				prompt.setVisible(true);
 			}
 		});
 		root.getChildren().add(login);
@@ -75,7 +100,7 @@ public class ClientApplication extends Application{
 		root.getChildren().add(passwordField);
 		root.getChildren().add(usernameText);
 		root.getChildren().add(passwordText);
-		root.getChildren().add(loginFail);
+		root.getChildren().add(prompt);
 	}
 	public void mainPage() {
 		
