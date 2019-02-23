@@ -40,11 +40,13 @@ public class MainServer {
 	public void close() throws Exception {
 		System.out.println("Server closing...");
 		for(ServerThread st:this.connectedClients) {
+			st.close();
 		}
+		this.dbCon.close();
 		this.server.close();
 	}
 
-	public void listen(){
+	public void listenConnection(){
 		Scanner keyIn = new Scanner(System.in);
 		new Thread(() -> {
 			while (true) {
@@ -60,7 +62,7 @@ public class MainServer {
 				e.printStackTrace();
 			}
 		}).start();
-		while (true) {
+		while (!server.isClosed()) {
 			System.out.println("Waiting for client connecting...");
 			try {
 				Socket client = server.accept();
