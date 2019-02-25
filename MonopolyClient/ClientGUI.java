@@ -44,7 +44,7 @@ public class ClientGUI {
 					prompt.setFill(Color.RED);
 				}
 			} else {
-				prompt.setText("Incorrect serverIP or port");
+				prompt.setText("Port should be numeric");
 				prompt.setFill(Color.RED);
 			}
 		});
@@ -74,8 +74,7 @@ public class ClientGUI {
 		PasswordField passwordField = new PasswordField();
 		Text usernameText = new Text("Username:");
 		Text passwordText = new Text("Password:");
-		Text prompt = new Text();
-		prompt.setVisible(false);
+		Text prompt = new Text("hi");
 		login.setOnAction(e -> {
 			String username = usernameField.getText();
 			String password = passwordField.getText();
@@ -113,14 +112,14 @@ public class ClientGUI {
 
 	public void mainPage() {
 		Button signOut = new Button("Sign out");
-		Label title =new Label("Main Page");
+		Label title = new Label("Main Page");
 		title.setLayoutX(300);
 		title.setLayoutY(100);
 		title.setStyle("-fx-font-size:50px");
 		signOut.setOnAction(e -> {
 			loginPage();
 		});
-		Group root = new Group(signOut,title);
+		Group root = new Group(signOut, title);
 		stage.setScene(new Scene(root));
 	}
 
@@ -156,9 +155,10 @@ public class ClientGUI {
 	public Node findElement(int row, int col, GridPane root) {
 		Node result = null;
 		for (Node node : root.getChildren()) {
-			if (root.getRowIndex(node) == row && root.getColumnIndex(node) == col)
+			if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
 				result = node;
-			break;
+				break;
+			}
 		}
 		return result;
 	}
