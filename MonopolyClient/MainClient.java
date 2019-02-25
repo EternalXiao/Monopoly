@@ -105,4 +105,12 @@ public class MainClient {
 	public void send(String info) {
 		out.println(info);
 	}
+	public void close() {
+		try {
+			this.out.close();
+			this.in.close();
+			this.client.close();
+		} catch (IOException e) {
+		}
+	}
 }
