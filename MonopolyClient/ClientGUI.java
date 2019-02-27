@@ -74,7 +74,7 @@ public class ClientGUI {
 		PasswordField passwordField = new PasswordField();
 		Text usernameText = new Text("Username:");
 		Text passwordText = new Text("Password:");
-		Text prompt = new Text("hi");
+		Text prompt = new Text();
 		login.setOnAction(e -> {
 			String username = usernameField.getText();
 			String password = passwordField.getText();
@@ -86,11 +86,9 @@ public class ClientGUI {
 			if (username.length() < 6 || username.length() > 15) {
 				prompt.setText("The length of username should be greater than 5 and less than 16");
 				prompt.setFill(Color.RED);
-				prompt.setVisible(true);
 			} else if (password.length() < 8 || password.length() > 15) {
 				prompt.setText("The length of password should be greater than 7 and less than 16");
 				prompt.setFill(Color.RED);
-				prompt.setVisible(true);
 			} else {
 				client.signUp(username, password);
 			}
