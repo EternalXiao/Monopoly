@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -25,12 +26,12 @@ public class ClientGUI {
 
 	public void initPage() {
 		GridPane root = new GridPane();
+		root.setAlignment(Pos.CENTER);
 		root.setHgap(10);
 		root.setVgap(10);
-		root.setAlignment(Pos.CENTER);
 		Text ip = new Text("Server IP:");
 		Text port = new Text("Port:");
-		Text prompt = new Text();
+		Label prompt = new Label();
 		TextField ipField = new TextField();
 		TextField portField = new TextField();
 		Button connect = new Button("Connect");
@@ -41,11 +42,11 @@ public class ClientGUI {
 					this.loginPage();
 				} else {
 					prompt.setText("Incorrect serverIP or port");
-					prompt.setFill(Color.RED);
+					prompt.setTextFill(Color.RED);
 				}
 			} else {
 				prompt.setText("Port should be numeric");
-				prompt.setFill(Color.RED);
+				prompt.setTextFill(Color.RED);
 			}
 		});
 		exit.setOnAction(e -> {
@@ -74,7 +75,8 @@ public class ClientGUI {
 		PasswordField passwordField = new PasswordField();
 		Text usernameText = new Text("Username:");
 		Text passwordText = new Text("Password:");
-		Text prompt = new Text();
+		Label prompt = new Label();
+		prompt.setMinHeight(35);
 		login.setOnAction(e -> {
 			String username = usernameField.getText();
 			String password = passwordField.getText();
@@ -84,11 +86,11 @@ public class ClientGUI {
 			String username = usernameField.getText();
 			String password = passwordField.getText();
 			if (username.length() < 6 || username.length() > 15) {
-				prompt.setText("The length of username should be greater than 5 and less than 16");
-				prompt.setFill(Color.RED);
+				prompt.setText("The length of username should be\ngreater than 5 and less than 16");
+				prompt.setTextFill(Color.RED);
 			} else if (password.length() < 8 || password.length() > 15) {
-				prompt.setText("The length of password should be greater than 7 and less than 16");
-				prompt.setFill(Color.RED);
+				prompt.setText("The length of password should be\ngreater than 7 and less than 16");
+				prompt.setTextFill(Color.RED);
 			} else {
 				client.signUp(username, password);
 			}
@@ -122,15 +124,20 @@ public class ClientGUI {
 	}
 
 	public void loginFailed() {
-		Text loginFail = (Text) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
+		Label loginFail = (Label) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
 		loginFail.setText("Incorrect username or password");
-		loginFail.setFill(Color.RED);
+		loginFail.setTextFill(Color.RED);
 	}
 
 	public void signUpFail() {
-		Text signUpFail = (Text) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
+		Label signUpFail = (Label) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
 		signUpFail.setText("Username has been used");
-		signUpFail.setFill(Color.RED);
+		signUpFail.setTextFill(Color.RED);
+	}
+	public void signUpSuccess() {
+		Label signUpSuccess = (Label) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
+		signUpSuccess.setText("Account created");
+		signUpSuccess.setTextFill(Color.GREEN);
 	}
 
 	public void nickName() {

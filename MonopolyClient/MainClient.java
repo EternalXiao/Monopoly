@@ -96,7 +96,7 @@ public class MainClient {
 		}
 		else if(infos[0].equals("SignUp")) {
 			if(infos[1].equals("1"))
-				Platform.runLater(()->gui.nickName());
+				Platform.runLater(()->gui.signUpSuccess());
 			else
 				Platform.runLater(()->gui.signUpFail());
 		}

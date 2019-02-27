@@ -19,12 +19,12 @@ public class ClientApplication extends Application{
 	private MainClient client;
 	@Override
 	public void start(Stage stage) throws Exception {
-		client = new MainClient();
-		//client = new MainClient(SERVERIP,PORT);
+		//client = new MainClient();
+		client = new MainClient(SERVERIP,PORT);
 		ClientGUI gui = new ClientGUI(stage,client);
 		client.setGUI(gui);
-		gui.initPage();
-		//gui.loginPage();
+		//gui.initPage();
+		gui.loginPage();
 		stage.setWidth(WIDTH);
 		stage.setHeight(HEIGHT);
 		stage.setTitle("Monopoly");
