@@ -76,7 +76,7 @@ public class Game {
 		map[32]=new Street(32,"Oxford Street",BlockType.Street,300,26);
 		map[33]=new Chance(33,"Chance",BlockType.Chance);
 		map[34]=new Street(34,"Bond Street",BlockType.Street,320,28);
-		map[35]=new Street(35,"Liverpool Street Station",BlockType.Railroad,200,25);
+		map[35]=new Railroad(35,"Liverpool Street Station",BlockType.Railroad,200,25);
 		map[36]=new Chance(36,"Chance",BlockType.Chance);
 		map[37]=new Street(37,"Park Lane",BlockType.Street,350,35);
 		map[38]=new Tax(38,"Super Tax",BlockType.Tax,100);
@@ -95,7 +95,8 @@ public class Game {
 					in.nextLine();
 					dice1 = Dice.rollDice();
 					dice2 = Dice.rollDice();
-					player.setCurrentPosition(player.getCurrentPosition()+dice1+dice2);
+					System.out.println("You roll out "+dice1 +" and "+dice2);
+					player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
 					Block block = map[player.getCurrentPosition()];
 					System.out.println("You have reached "+map[block.getPosition()].getName());
 					switch(map[block.getPosition()].getType()) {
@@ -105,21 +106,61 @@ public class Game {
 							System.out.println("Enter y to buy, else n (Price "+street.getPrice()+")");
 							String decision = in.nextLine().trim();
 							if(decision.equalsIgnoreCase("y")) {
-								//buy
-								street.setOwned(true);
-								street.setOwner(player);
-								player.getOwnedProperties().add(street);
-								//money not enough
-								player.setMoney(player.getMoney()-street.getPrice());
+								if(!player.buy(street)) {
+									System.out.println("Not enough money");
+								}
 							}
 						}
 						else {
 							//money not enough
-							player.setMoney(player.getMoney()-street.getInitialRent());
-							//pay
-							Player anotherPlayer = street.getOwner();
-							anotherPlayer.setMoney(anotherPlayer.getMoney()+street.getInitialRent());
+							player.pay(street.getOwner(), street.getInitialRent());
 						}
+						break;
+					case Railroad:
+						Railroad railroad = (Railroad)block;
+						if(railroad.isOwned()) {
+							player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
+						}
+						else {
+							System.out.println("Enter y to buy, else n (Price "+railroad.getPrice()+")");
+							String decision = in.nextLine().trim();
+							if(decision.equalsIgnoreCase("y")) {
+								if(!player.buy(railroad)) {
+									System.out.println("Not enough money");
+								}
+							}
+						}
+						break;
+					case Utility:
+						Utility utility = (Utility)block;
+						if(utility.isOwned()) {
+							player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedRailroads(),dice1+dice2));
+						}
+						else {
+							System.out.println("Enter y to buy, else n (Price "+utility.getPrice()+")");
+							String decision = in.nextLine().trim();
+							if(decision.equalsIgnoreCase("y")) {
+								if(!player.buy(utility)) {
+									System.out.println("Not enough money");
+								}
+							}
+						}
+						break;
+					case Tax:
+						player.payMoney(((Tax)block).getTax());
+						break;
+					case Chance:
+						player.receiveMoney(((Chance)block).getChance());
+						System.out.println("You got 200");
+						break;
+					case Go:
+						//only step on
+						player.receiveMoney(200);
+						System.out.println("You got 200 by passing Go");
+						break;
+					case GoToJail:
+						player.setCurrentPosition(10);
+						player.setInJail(true);
 						break;
 					default:
 						break;
