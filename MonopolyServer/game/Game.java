@@ -2,6 +2,7 @@ package MonopolyServer.game;
 
 import java.util.*;
 
+import MonopolyServer.MainServer;
 import javafx.application.Platform;
 
 public class Game {
@@ -9,21 +10,21 @@ public class Game {
 	private LinkedList<Player> players;
 	private int alivePlayers;
 	//temporary
+	private MainServer server;
 	private int currentPlayer;
-	private MainPage mp;
+	//private MainPage mp;
 	Scanner in;
 	//private LinkedList<Player> alivePlayers;
 	
-	public Game(MainPage mp) {
+	public Game(MainServer server) {
 		map = new Block[40];
 		players = new LinkedList<>();
-		players.add(new Player(1));
-		players.add(new Player(2));
 		this.currentPlayer=0;
 		this.alivePlayers=this.players.size();
 		this.initMap();
 		in = new Scanner(System.in);
-		this.mp = mp;
+		this.server=server;
+		//this.mp = mp;
 	}
 	public int getCurrentPlayer() {
 		return currentPlayer;
@@ -50,6 +51,9 @@ public class Game {
 
 	public void setAlivePlayers(int alivePlayers) {
 		this.alivePlayers = alivePlayers;
+	}
+	public void addPlayer() {
+		this.players.add(new Player(this.players.size()));
 	}
 
 	public void initMap() {
@@ -95,6 +99,32 @@ public class Game {
 		map[39]=new Street(39,"Mayfair",BlockType.Street,400,50);
 	}
 	//temporary
+	public void testNextRound() {
+		Player player = this.getPlayers().get(currentPlayer);
+		if(player.isAlive()) {
+			System.out.println("Player "+player.getId()+"' turn");
+			System.out.println("Enter any character to roll dice");
+			int dice1,dice2;
+			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
+			synchronized(this) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			dice1 = Dice.rollDice();
+			dice2 = Dice.rollDice();
+			//server.sendAll("Dice "+dice1+" "+dice2);
+			//System.out.println("You roll out "+dice1 +" and "+dice2);
+			player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
+			server.sendAll("Update Position "+player.getId()+" "+player.getCurrentPosition());
+			//Platform.runLater(()->mp.update());
+			Block block = map[player.getCurrentPosition()];
+			System.out.println(player.getId()+" have reached "+map[block.getPosition()].getName());
+		}
+		this.currentPlayer = (this.currentPlayer +1)%this.getPlayers().size();
+	}
 	public void nextRound() {
 		
 		Player player = this.getPlayers().get(currentPlayer);
@@ -102,14 +132,21 @@ public class Game {
 			System.out.println("Player "+player.getId()+"' turn");
 			System.out.println("Enter any character to roll dice");
 			int dice1,dice2;
-			in.nextLine();
+			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			dice1 = Dice.rollDice();
 			dice2 = Dice.rollDice();
-			System.out.println("You roll out "+dice1 +" and "+dice2);
+			//server.sendAll("Dice "+dice1+" "+dice2);
+			//System.out.println("You roll out "+dice1 +" and "+dice2);
 			player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
-			Platform.runLater(()->mp.update());
+			server.sendAll("Update Position "+player.getId()+" "+player.getCurrentPosition());
+			//Platform.runLater(()->mp.update());
 			Block block = map[player.getCurrentPosition()];
-			System.out.println("You have reached "+map[block.getPosition()].getName());
+			System.out.println(player.getId()+" have reached "+map[block.getPosition()].getName());
 			switch(map[block.getPosition()].getType()) {
 			case Street:
 				Street street = (Street)block;

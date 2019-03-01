@@ -23,7 +23,7 @@ public class MainPage extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		initBoard(stage);
-		game = new Game(this);
+		//game = new Game(this);
 		new Thread(()->{
 			while(true) {
 				game.nextRound();

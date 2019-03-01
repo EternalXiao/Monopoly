@@ -8,12 +8,14 @@ public class Player {
 	private int id;
 	private boolean isInJail;
 	private boolean isAlive;
+	private boolean isReady;
 	LinkedList<Property> ownedProperties;
 	public Player() {
 		this.currentPosition=0;
 		this.money=1500;
 		this.isInJail=false;
 		this.isAlive=true;
+		this.isReady=false;
 		this.ownedProperties = new LinkedList<>();
 	}
 	public Player(int id) {
@@ -22,6 +24,7 @@ public class Player {
 		this.money=1500;
 		this.isInJail=false;
 		this.isAlive=true;
+		this.isReady=false;
 		this.ownedProperties = new LinkedList<>();
 	}
 	public int getCurrentPosition() {
@@ -56,6 +59,12 @@ public class Player {
 	}
 	public boolean isAlive() {
 		return isAlive;
+	}
+	public void setIsReady(boolean isReady) {
+		this.isReady=isReady;
+	}
+	public boolean isReady() {
+		return this.isReady;
 	}
 	public void setAlive(boolean isAlive) {
 		this.isAlive = isAlive;
