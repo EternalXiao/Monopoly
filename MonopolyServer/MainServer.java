@@ -98,4 +98,11 @@ public class MainServer {
 			st.send(info);
 		}
 	}
+	public void sendAllWithout(String info,int playerId) {
+		for(ServerThread st:this.connectedClients) {
+			if(st.getInGameId()==playerId)
+				continue;
+			st.send(info);
+		}
+	}
 }

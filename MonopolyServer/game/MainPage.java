@@ -24,12 +24,12 @@ public class MainPage extends Application{
 	public void start(Stage stage) throws Exception {
 		initBoard(stage);
 		//game = new Game(this);
-		new Thread(()->{
-			while(true) {
-				game.nextRound();
-				//Platform.runLater(()->update());
-			}
-		} ).start();  
+//		new Thread(()->{
+//			while(true) {
+//				game.nextRound();
+//				//Platform.runLater(()->update());
+//			}
+//		} ).start();  
 		
 	}
 	public void initBoard(Stage stage) {
@@ -51,7 +51,7 @@ public class MainPage extends Application{
 		border.setBottom(foot);
 		border.setLeft(left);
 		border.setRight(right);
-		Image board = new Image("file:src/image/board.png");
+		Image board = new Image("file:src/image/towerBlack.gif");
 		ImageView boardView = new ImageView(board);
 		root.getChildren().addAll(boardView,p1,p2);
 		stage.setScene(new Scene(border,1100,900));

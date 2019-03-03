@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 import javafx.application.Platform;
 import MonopolyServer.game.*;
+import gui.MainGameDesk;
 public class MainClient {
 	private Socket client;
 	private String serverIP;
@@ -93,6 +94,66 @@ public class MainClient {
 			}
 		}).start();
 	}
+	/**
+	 * This method parses the messages sent by the server
+	 * The messages are in the following format:
+	 * <message type> <message content>
+	 * The first string represents the message type. All the 
+	 * types are as follows:
+	 * i:	Login
+	 * ii:	SignUp
+	 * iii:	Ready
+	 * iv:	Start
+	 * v:	YourTurn
+	 * vi:	Update
+	 * 
+	 * Followed by message type, the length of the message content
+	 * varies from their type
+	 * 
+	 * i.Login
+	 * The content of Login only has one bit:
+	 * 1: Login success
+	 * 0: Login fail
+	 * 
+	 * ii.SignUp
+	 * The content of SignUp only has one bit:
+	 * 1: SignUp success
+	 * 0: SignUp fail
+	 * 
+	 * iii.Ready
+	 * Ready represents the ready status of players
+	 * The content has two bits. The first bit represent
+	 * the player id from 0-5 and the second bit
+	 * represents ready status:
+	 * 1: ready
+	 * 0: not ready
+	 * 
+	 * iv.Start
+	 * The Start message does not have content. It is
+	 * just a notification from server to initialise
+	 * the chess position
+	 * 
+	 * v.YourTurn
+	 * The YourTurn message does not have content. It
+	 * is just a notification from server to enable 
+	 * action
+	 * 
+	 * vi.Update
+	 * The Update message is the most complicated one.
+	 * The first bit in the content represents the 
+	 * type of data need to update. There are generally
+	 * n types of data:
+	 * 1.Position
+	 * 2.Money
+	 * 3.BlockOwner
+	 * 4.BlockLevel
+	 * 5.OwnedProperty
+	 * 6.Alive
+	 * 7.InJail
+	 * 8.Dice
+	 * 
+	 * @param info the message sent by the server
+	 */
 	public void parseInfo(String info) {
 		String[] infos = info.split(" ");
 		if(infos[0].equals("Login")) {
@@ -112,19 +173,45 @@ public class MainClient {
 			keyIn.nextLine();
 			this.send("RollDice");
 		}
-		else if(infos[0].equals("Dice")) {
+		else if(infos[0].equals("YourTurn")) {
 			
 		}
 		else if(infos[0].equals("Update")) {
 			if(infos[1].equals("Position")) {
 				this.players.get(Integer.parseInt(infos[2])).setCurrentPosition(Integer.parseInt(infos[3]));
+				MainGameDesk.update();
+			}
+			else if(infos[1].equals("Money")) {
+				
+			}
+			else if(infos[1].equals("BlockOwner")) {
+				
+			}
+			else if(infos[1].equals("BlockLevel")) {
+				
+			}
+			else if(infos[1].equals("OwnedProperty")) {
+				
+			}
+			else if(infos[1].equals("Alive")) {
+				
+			}
+			else if(infos[1].equals("InJail")) {
+				
+			}
+			else if(infos[1].equals("Dice")) {
+				
 			}
 		}
 		else if(infos[0].equals("Start")) {
 			this.map= new GameMap().getMap();
 			this.players = new LinkedList<>();
 			this.players.add(new Player(0));
-			this.players.add(new Player(1));
+			MainGameDesk.players=this.players;
+			MainGameDesk.update();
+		}
+		else if(infos[0].equals("Ready")) {
+			
 		}
 	}
 

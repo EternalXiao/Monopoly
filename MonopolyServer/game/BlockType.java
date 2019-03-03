@@ -5,6 +5,7 @@ public enum BlockType {
 	Railroad,
 	Utility,
 	Chance,
+	CommunityChest,
 	Tax,
 	Jail,
 	GoToJail,

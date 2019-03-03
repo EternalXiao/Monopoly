@@ -12,7 +12,7 @@ public class GameMap {
 	private void initMap() {
 		map[0] = new Block(0, "Go", BlockType.Go);
 		map[1] = new Street(1, "Old Kent Road", BlockType.Street, 60, 2);
-		map[2] = new Chance(2, "Chance", BlockType.Chance);
+		map[2] = new CommunityChest(2, "CommunityChest", BlockType.CommunityChest);
 		map[3] = new Street(3, "Whitechapel Road", BlockType.Street, 60, 4);
 		map[4] = new Tax(4, "Income Tax", BlockType.Tax, 200);
 		map[5] = new Railroad(5, "King's Cross Station", BlockType.Railroad, 200, 25);
@@ -27,7 +27,7 @@ public class GameMap {
 		map[14] = new Street(14, "Northumberland Avenue", BlockType.Street, 160, 12);
 		map[15] = new Railroad(15, "Marylebone Station", BlockType.Railroad, 200, 25);
 		map[16] = new Street(16, "Bow Street", BlockType.Street, 180, 14);
-		map[17] = new Chance(17, "Chance", BlockType.Chance);
+		map[17] = new CommunityChest(17, "CommunityChest", BlockType.CommunityChest);
 		map[18] = new Street(18, "Marlborough Street", BlockType.Street, 180, 14);
 		map[19] = new Street(19, "Vine Street", BlockType.Street, 200, 16);
 		map[20] = new Block(20, "Free Parking", BlockType.Parking);
@@ -43,7 +43,7 @@ public class GameMap {
 		map[30] = new Block(30, "Go To Jail", BlockType.GoToJail);
 		map[31] = new Street(31, "Regent Street", BlockType.Street, 300, 26);
 		map[32] = new Street(32, "Oxford Street", BlockType.Street, 300, 26);
-		map[33] = new Chance(33, "Chance", BlockType.Chance);
+		map[33] = new CommunityChest(33, "CommunityChest", BlockType.CommunityChest);
 		map[34] = new Street(34, "Bond Street", BlockType.Street, 320, 28);
 		map[35] = new Railroad(35, "Liverpool Street Station", BlockType.Railroad, 200, 25);
 		map[36] = new Chance(36, "Chance", BlockType.Chance);

@@ -32,7 +32,9 @@ public class ServerThread extends Thread {
 		}
 
 	}
-
+	public int getInGameId() {
+		return this.inGameId;
+	}
 	public void setInGameId(int inGameId) {
 		this.inGameId = inGameId;
 	}
@@ -42,7 +44,38 @@ public class ServerThread extends Thread {
 		System.out.println("Connecting from : " + this.client.getInetAddress());
 		this.listenClient();
 	}
-
+	/**
+	 * This method parses the message sent by the client
+	 * The message are in the following format:
+	 * <message type> <message content>
+	 * The first string represents the message type. All the types
+	 * are as follows:
+	 * i:	Login
+	 * ii:	SignUp
+	 * iii:	Ready
+	 * iv:	RollDice
+	 * v:	Buy
+	 * 
+	 * Followed by message type, the length of the message content
+	 * varies from their type
+	 * 
+	 * i.Login
+	 * The content of the Login comprises of two bits
+	 * The first bit represents the username of the client and the
+	 * second is the password
+	 * 
+	 * ii.SignUp
+	 * The content of the SignUp comprises of two bits
+	 * The first bit represents the username of the client and the
+	 * second is the password
+	 * 
+	 * iii.Ready
+	 * The content of Ready has only one bit:
+	 * 1:player ready
+	 * 0:player not ready
+	 * @param info
+	 * @throws Exception
+	 */
 	public void parseInfo(String info) throws Exception {
 		String[] infos = info.split(" ");
 		if (infos[0].equals("Login")) {
