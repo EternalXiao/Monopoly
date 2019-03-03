@@ -15,12 +15,15 @@ public class ServerThread extends Thread {
 	private MainServer server;
 	private PrintStream out;
 	private Scanner in;
-	private int id;
+	// temp
+	private int inGameId;
+	private String name;
 
-	public ServerThread(Socket client, Connection dbCon, MainServer server) {
+	public ServerThread(Socket client, Connection dbCon, MainServer server, int inGameId) {
 		this.client = client;
 		this.dbCon = dbCon;
 		this.server = server;
+		this.inGameId = inGameId;
 		try {
 			out = new PrintStream(client.getOutputStream());
 			in = new Scanner(client.getInputStream());
@@ -30,8 +33,8 @@ public class ServerThread extends Thread {
 
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setInGameId(int inGameId) {
+		this.inGameId = inGameId;
 	}
 
 	@Override
@@ -72,13 +75,13 @@ public class ServerThread extends Thread {
 				this.send("SignUp 0");
 		} else if (infos[0].equals("Ready")) {
 			if (infos[1].equals("1")) {
-				server.getGame().getPlayers().get(this.id).setIsReady(true);
-				System.out.println(this.id + " ready");
+				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
+				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
 					new Thread(() -> {
+						server.sendAll("Start");
+						System.out.println("Game start!");
 						while (true) {
-							server.sendAll("Start");
-							System.out.println("Game start!");
 							server.getGame().testNextRound();
 						}
 					}).start();
@@ -86,7 +89,7 @@ public class ServerThread extends Thread {
 
 		} else if (infos[0].equals("RollDice")) {
 			synchronized (server.getGame()) {
-				notifyAll();
+				server.getGame().notify();
 			}
 		}
 	}

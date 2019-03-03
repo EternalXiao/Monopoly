@@ -5,7 +5,8 @@ import java.util.LinkedList;
 public class Player {
 	private int currentPosition;
 	private int money;
-	private int id;
+	private int inGameId;
+	private String name;
 	private boolean isInJail;
 	private boolean isAlive;
 	private boolean isReady;
@@ -18,13 +19,22 @@ public class Player {
 		this.isReady=false;
 		this.ownedProperties = new LinkedList<>();
 	}
-	public Player(int id) {
-		this.id=id;
+	public Player(int inGameId) {
+		this.inGameId=inGameId;
 		this.currentPosition=0;
 		this.money=1500;
 		this.isInJail=false;
 		this.isAlive=true;
 		this.isReady=false;
+		this.ownedProperties = new LinkedList<>();
+	}
+	public Player(String name) {
+		this.currentPosition=0;
+		this.money=1500;
+		this.isInJail=false;
+		this.isAlive=true;
+		this.isReady=false;
+		this.name=name;
 		this.ownedProperties = new LinkedList<>();
 	}
 	public int getCurrentPosition() {
@@ -38,12 +48,6 @@ public class Player {
 	}
 	public void setMoney(int money) {
 		this.money = money;
-	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
 	}
 	public boolean isInJail() {
 		return isInJail;
@@ -69,6 +73,19 @@ public class Player {
 	public void setAlive(boolean isAlive) {
 		this.isAlive = isAlive;
 	}
+	
+	public int getInGameId() {
+		return inGameId;
+	}
+	public void setInGameId(int inGameId) {
+		this.inGameId = inGameId;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	public void receiveMoney(int amount) {
 		this.money += amount;
 	}
@@ -78,7 +95,7 @@ public class Player {
 	public void pay(Player player,int amount) {
 		this.payMoney(amount);
 		player.receiveMoney(amount);
-		System.out.println("You paid player "+player.getId()+" with "+amount);
+		System.out.println("You paid player "+player.getInGameId()+" with "+amount);
 		System.out.println("You have "+this.money+ " remaining");
 	}
 	public boolean buy(Property property) {

@@ -9,26 +9,27 @@ public class Game {
 	private Block[] map;
 	private LinkedList<Player> players;
 	private int alivePlayers;
-	//temporary
+	// temporary
 	private MainServer server;
 	private int currentPlayer;
-	//private MainPage mp;
+	// private MainPage mp;
 	Scanner in;
-	//private LinkedList<Player> alivePlayers;
-	
+	// private LinkedList<Player> alivePlayers;
+
 	public Game(MainServer server) {
-		map = new Block[40];
+		map = new GameMap().getMap();
 		players = new LinkedList<>();
-		this.currentPlayer=0;
-		this.alivePlayers=this.players.size();
-		this.initMap();
+		this.currentPlayer = 0;
+		this.alivePlayers = this.players.size();
 		in = new Scanner(System.in);
-		this.server=server;
-		//this.mp = mp;
+		this.server = server;
+		// this.mp = mp;
 	}
+
 	public int getCurrentPlayer() {
 		return currentPlayer;
 	}
+
 	public Block[] getMap() {
 		return map;
 	}
@@ -52,86 +53,18 @@ public class Game {
 	public void setAlivePlayers(int alivePlayers) {
 		this.alivePlayers = alivePlayers;
 	}
+
 	public void addPlayer() {
 		this.players.add(new Player(this.players.size()));
 	}
 
-	public void initMap() {
-		map[0]=new Block(0,"Go",BlockType.Go);
-		map[1]=new Street(1,"Old Kent Road",BlockType.Street,60,2);
-		map[2]=new Chance(2,"Chance",BlockType.Chance);
-		map[3]=new Street(3,"Whitechapel Road",BlockType.Street,60,4);
-		map[4]=new Tax(4,"Income Tax",BlockType.Tax,200);
-		map[5]=new Railroad(5,"King's Cross Station",BlockType.Railroad,200,25);
-		map[6]=new Street(6,"The Angel Islington",BlockType.Street,100,6);
-		map[7]=new Chance(7,"Chance",BlockType.Chance);
-		map[8]=new Street(8,"Euston Road",BlockType.Street,100,6);
-		map[9]=new Street(9,"Pentonville Road",BlockType.Street,120,8);
-		map[10]=new Block(10,"Jail",BlockType.Jail);
-		map[11]=new Street(11,"Pall Mall",BlockType.Street,140,10);
-		map[12]=new Utility(12,"Electric Company",BlockType.Utility,150,4);
-		map[13]=new Street(13,"Whitehall",BlockType.Street,140,10);
-		map[14]=new Street(14,"Northumberland Avenue",BlockType.Street,160,12);
-		map[15]=new Railroad(15,"Marylebone Station",BlockType.Railroad,200,25);
-		map[16]=new Street(16,"Bow Street",BlockType.Street,180,14);
-		map[17]=new Chance(17,"Chance",BlockType.Chance);
-		map[18]=new Street(18,"Marlborough Street",BlockType.Street,180,14);
-		map[19]=new Street(19,"Vine Street",BlockType.Street,200,16);
-		map[20]=new Block(20,"Free Parking",BlockType.Parking);
-		map[21]=new Street(21,"The Strand",BlockType.Street,220,18);
-		map[22]=new Chance(22,"Chance",BlockType.Chance);
-		map[23]=new Street(23,"Fleet Street",BlockType.Street,220,18);
-		map[24]=new Street(24,"Trafalgar Square",BlockType.Street,240,20);
-		map[25]=new Railroad(25,"Fenchurch st Station",BlockType.Railroad,200,25);
-		map[26]=new Street(26,"Leicester Square",BlockType.Street,260,22);
-		map[27]=new Street(27,"Coventry Street",BlockType.Street,260,22);
-		map[28]=new Utility(28,"Water Works",BlockType.Utility,150,4);
-		map[29]=new Street(29,"Piccadilly",BlockType.Street,280,22);
-		map[30]=new Block(30,"Go To Jail",BlockType.GoToJail);
-		map[31]=new Street(31,"Regent Street",BlockType.Street,300,26);
-		map[32]=new Street(32,"Oxford Street",BlockType.Street,300,26);
-		map[33]=new Chance(33,"Chance",BlockType.Chance);
-		map[34]=new Street(34,"Bond Street",BlockType.Street,320,28);
-		map[35]=new Railroad(35,"Liverpool Street Station",BlockType.Railroad,200,25);
-		map[36]=new Chance(36,"Chance",BlockType.Chance);
-		map[37]=new Street(37,"Park Lane",BlockType.Street,350,35);
-		map[38]=new Tax(38,"Super Tax",BlockType.Tax,100);
-		map[39]=new Street(39,"Mayfair",BlockType.Street,400,50);
-	}
-	//temporary
-	public void testNextRound() {
+	// temporary
+	public synchronized void testNextRound() {
 		Player player = this.getPlayers().get(currentPlayer);
-		if(player.isAlive()) {
-			System.out.println("Player "+player.getId()+"' turn");
+		if (player.isAlive()) {
+			System.out.println("Player " + player.getInGameId() + "'s turn");
 			System.out.println("Enter any character to roll dice");
-			int dice1,dice2;
-			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
-			synchronized(this) {
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			dice1 = Dice.rollDice();
-			dice2 = Dice.rollDice();
-			//server.sendAll("Dice "+dice1+" "+dice2);
-			//System.out.println("You roll out "+dice1 +" and "+dice2);
-			player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
-			server.sendAll("Update Position "+player.getId()+" "+player.getCurrentPosition());
-			//Platform.runLater(()->mp.update());
-			Block block = map[player.getCurrentPosition()];
-			System.out.println(player.getId()+" have reached "+map[block.getPosition()].getName());
-		}
-		this.currentPlayer = (this.currentPlayer +1)%this.getPlayers().size();
-	}
-	public void nextRound() {
-		
-		Player player = this.getPlayers().get(currentPlayer);
-		if(player.isAlive()) {
-			System.out.println("Player "+player.getId()+"' turn");
-			System.out.println("Enter any character to roll dice");
-			int dice1,dice2;
+			int dice1, dice2;
 			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
 			try {
 				wait();
@@ -140,69 +73,93 @@ public class Game {
 			}
 			dice1 = Dice.rollDice();
 			dice2 = Dice.rollDice();
-			//server.sendAll("Dice "+dice1+" "+dice2);
-			//System.out.println("You roll out "+dice1 +" and "+dice2);
-			player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
-			server.sendAll("Update Position "+player.getId()+" "+player.getCurrentPosition());
-			//Platform.runLater(()->mp.update());
+			// server.sendAll("Dice "+dice1+" "+dice2);
+			// System.out.println("You roll out "+dice1 +" and "+dice2);
+			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
+			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
+			// Platform.runLater(()->mp.update());
 			Block block = map[player.getCurrentPosition()];
-			System.out.println(player.getId()+" have reached "+map[block.getPosition()].getName());
-			switch(map[block.getPosition()].getType()) {
+			System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
+		}
+		this.currentPlayer = (this.currentPlayer + 1) % this.getPlayers().size();
+	}
+
+	public void nextRound() {
+
+		Player player = this.getPlayers().get(currentPlayer);
+		if (player.isAlive()) {
+			System.out.println("Player " + player.getInGameId() + "'s turn");
+			System.out.println("Enter any character to roll dice");
+			int dice1, dice2;
+			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			dice1 = Dice.rollDice();
+			dice2 = Dice.rollDice();
+			// server.sendAll("Dice "+dice1+" "+dice2);
+			// System.out.println("You roll out "+dice1 +" and "+dice2);
+			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
+			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
+			// Platform.runLater(()->mp.update());
+			Block block = map[player.getCurrentPosition()];
+			System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
+			switch (map[block.getPosition()].getType()) {
 			case Street:
-				Street street = (Street)block;
-				if(!street.isOwned()) {
-					System.out.println("Enter y to buy, else n (Price "+street.getPrice()+")");
+				Street street = (Street) block;
+				if (!street.isOwned()) {
+					System.out.println("Enter y to buy, else n (Price " + street.getPrice() + ")");
 					String decision = in.nextLine().trim();
-					if(decision.equalsIgnoreCase("y")) {
-						if(!player.buy(street)) {
+					if (decision.equalsIgnoreCase("y")) {
+						if (!player.buy(street)) {
 							System.out.println("Not enough money");
 						}
 					}
-				}
-				else {
-					//money not enough
+				} else {
+					// money not enough
 					player.pay(street.getOwner(), street.getInitialRent());
 				}
 				break;
 			case Railroad:
-				Railroad railroad = (Railroad)block;
-				if(railroad.isOwned()) {
+				Railroad railroad = (Railroad) block;
+				if (railroad.isOwned()) {
 					player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
-				}
-				else {
-					System.out.println("Enter y to buy, else n (Price "+railroad.getPrice()+")");
+				} else {
+					System.out.println("Enter y to buy, else n (Price " + railroad.getPrice() + ")");
 					String decision = in.nextLine().trim();
-					if(decision.equalsIgnoreCase("y")) {
-						if(!player.buy(railroad)) {
+					if (decision.equalsIgnoreCase("y")) {
+						if (!player.buy(railroad)) {
 							System.out.println("Not enough money");
 						}
 					}
 				}
 				break;
 			case Utility:
-				Utility utility = (Utility)block;
-				if(utility.isOwned()) {
-					player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedRailroads(),dice1+dice2));
-				}
-				else {
-					System.out.println("Enter y to buy, else n (Price "+utility.getPrice()+")");
+				Utility utility = (Utility) block;
+				if (utility.isOwned()) {
+					player.pay(utility.getOwner(),
+							utility.getTotalRent(utility.getOwner().getOwnedRailroads(), dice1 + dice2));
+				} else {
+					System.out.println("Enter y to buy, else n (Price " + utility.getPrice() + ")");
 					String decision = in.nextLine().trim();
-					if(decision.equalsIgnoreCase("y")) {
-						if(!player.buy(utility)) {
+					if (decision.equalsIgnoreCase("y")) {
+						if (!player.buy(utility)) {
 							System.out.println("Not enough money");
 						}
 					}
 				}
 				break;
 			case Tax:
-				player.payMoney(((Tax)block).getTax());
+				player.payMoney(((Tax) block).getTax());
 				break;
 			case Chance:
-				player.receiveMoney(((Chance)block).getChance());
+				player.receiveMoney(((Chance) block).getChance());
 				System.out.println("You got 200");
 				break;
 			case Go:
-				//only step on
+				// only step on
 				player.receiveMoney(200);
 				System.out.println("You got 200 by passing Go");
 				break;
@@ -214,79 +171,79 @@ public class Game {
 				break;
 			}
 		}
-		this.currentPlayer = (this.currentPlayer +1)%this.getPlayers().size();
+		this.currentPlayer = (this.currentPlayer + 1) % this.getPlayers().size();
 	}
+
 	public void start() {
-		
-		while(true) {
-			for(Player player:players) {
-				if(player.isAlive()) {
-					System.out.println("Player "+player.getId()+"' turn");
+
+		while (true) {
+			for (Player player : players) {
+				if (player.isAlive()) {
+					System.out.println("Player " + player.getInGameId() + "' turn");
 					System.out.println("Enter any character to roll dice");
-					int dice1,dice2;
+					int dice1, dice2;
 					in.nextLine();
 					dice1 = Dice.rollDice();
 					dice2 = Dice.rollDice();
-					System.out.println("You roll out "+dice1 +" and "+dice2);
-					player.setCurrentPosition((player.getCurrentPosition()+dice1+dice2)%40);
+					System.out.println("You roll out " + dice1 + " and " + dice2);
+					player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
 					Block block = map[player.getCurrentPosition()];
-					System.out.println("You have reached "+map[block.getPosition()].getName());
-					switch(map[block.getPosition()].getType()) {
+					System.out.println("You have reached " + map[block.getPosition()].getName());
+					switch (map[block.getPosition()].getType()) {
 					case Street:
-						Street street = (Street)block;
-						if(!street.isOwned()) {
-							System.out.println("Enter y to buy, else n (Price "+street.getPrice()+")");
+						Street street = (Street) block;
+						if (!street.isOwned()) {
+							System.out.println("Enter y to buy, else n (Price " + street.getPrice() + ")");
 							String decision = in.nextLine().trim();
-							if(decision.equalsIgnoreCase("y")) {
-								if(!player.buy(street)) {
+							if (decision.equalsIgnoreCase("y")) {
+								if (!player.buy(street)) {
 									System.out.println("Not enough money");
 								}
 							}
-						}
-						else {
-							//money not enough
+						} else {
+							// money not enough
 							player.pay(street.getOwner(), street.getInitialRent());
 						}
 						break;
 					case Railroad:
-						Railroad railroad = (Railroad)block;
-						if(railroad.isOwned()) {
-							player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
-						}
-						else {
-							System.out.println("Enter y to buy, else n (Price "+railroad.getPrice()+")");
+						Railroad railroad = (Railroad) block;
+						if (railroad.isOwned()) {
+							player.pay(railroad.getOwner(),
+									railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
+						} else {
+							System.out.println("Enter y to buy, else n (Price " + railroad.getPrice() + ")");
 							String decision = in.nextLine().trim();
-							if(decision.equalsIgnoreCase("y")) {
-								if(!player.buy(railroad)) {
+							if (decision.equalsIgnoreCase("y")) {
+								if (!player.buy(railroad)) {
 									System.out.println("Not enough money");
 								}
 							}
 						}
 						break;
 					case Utility:
-						Utility utility = (Utility)block;
-						if(utility.isOwned()) {
-							player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedRailroads(),dice1+dice2));
-						}
-						else {
-							System.out.println("Enter y to buy, else n (Price "+utility.getPrice()+")");
+						Utility utility = (Utility) block;
+						if (utility.isOwned()) {
+							player.pay(utility.getOwner(),
+									utility.getTotalRent(utility.getOwner().getOwnedRailroads(), dice1 + dice2));
+						} else {
+							System.out.println("Enter y to buy, else n (Price " + utility.getPrice() + ")");
 							String decision = in.nextLine().trim();
-							if(decision.equalsIgnoreCase("y")) {
-								if(!player.buy(utility)) {
+							if (decision.equalsIgnoreCase("y")) {
+								if (!player.buy(utility)) {
 									System.out.println("Not enough money");
 								}
 							}
 						}
 						break;
 					case Tax:
-						player.payMoney(((Tax)block).getTax());
+						player.payMoney(((Tax) block).getTax());
 						break;
 					case Chance:
-						player.receiveMoney(((Chance)block).getChance());
+						player.receiveMoney(((Chance) block).getChance());
 						System.out.println("You got 200");
 						break;
 					case Go:
-						//only step on
+						// only step on
 						player.receiveMoney(200);
 						System.out.println("You got 200 by passing Go");
 						break;
@@ -301,11 +258,12 @@ public class Game {
 			}
 		}
 	}
+
 	public static void main(String... args) {
-		//Game game = new Game();
-		//game.start();
-		while(true) {
-			//game.nextRound();
+		// Game game = new Game();
+		// game.start();
+		while (true) {
+			// game.nextRound();
 		}
 	}
 }

@@ -34,9 +34,9 @@ public class MainServer {
 	}
 	public boolean build() {
 		try {
-			Class.forName(DBDRIVER);
+//			Class.forName(DBDRIVER);
 			server = new ServerSocket(this.port);
-			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
+//			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
 			System.out.println("Server launched...");
 			//test
 			game = new Game(this);
@@ -77,10 +77,9 @@ public class MainServer {
 			try {
 				Socket client = server.accept();
 				System.out.println("One client connected...");
-				ServerThread ST = new ServerThread(client, dbCon,this);
+				ServerThread ST = new ServerThread(client, dbCon,this,this.connectedClients.size());
 				this.connectedClients.add(ST);
 				ST.start();
-				ST.setId(this.connectedClients.size()-1);
 				game.addPlayer();
 			} catch (IOException e) {
 				e.printStackTrace();
