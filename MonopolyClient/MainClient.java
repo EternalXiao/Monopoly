@@ -10,6 +10,7 @@ import java.util.Scanner;
 import javafx.application.Platform;
 import MonopolyServer.game.*;
 import gui.MainGameDesk;
+
 public class MainClient {
 	private Socket client;
 	private String serverIP;
@@ -17,7 +18,7 @@ public class MainClient {
 	private PrintStream out;
 	private Scanner in;
 	private ClientGUI gui;
-	//temporary
+	// temporary
 	private Scanner keyIn;
 	private Block[] map;
 	private LinkedList<Player> players;
@@ -26,14 +27,16 @@ public class MainClient {
 		this.serverIP = serverIP;
 		this.port = port;
 		this.connect();
-		//temp
+		// temp
 		this.keyIn = new Scanner(System.in);
 	}
+
 	public MainClient() {
-		
+
 	}
+
 	public void setGUI(ClientGUI gui) {
-		this.gui=gui;
+		this.gui = gui;
 	}
 
 	public boolean connect() {
@@ -47,7 +50,8 @@ public class MainClient {
 			return false;
 		}
 	}
-	public boolean connect(String serverIP,int port) {
+
+	public boolean connect(String serverIP, int port) {
 		try {
 			this.client = new Socket(serverIP, port);
 			this.out = new PrintStream(client.getOutputStream());
@@ -76,9 +80,9 @@ public class MainClient {
 	}
 
 	public void signUp(String username, String password) {
-		this.send("SignUp "+ username +" "+password);
+		this.send("SignUp " + username + " " + password);
 	}
-	
+
 	public void listenServer() {
 		new Thread(() -> {
 			while (client.isConnected()) {
@@ -94,130 +98,106 @@ public class MainClient {
 			}
 		}).start();
 	}
+
 	/**
-	 * This method parses the messages sent by the server
-	 * The messages are in the following format:
-	 * <message type> <message content>
-	 * The first string represents the message type. All the 
-	 * types are as follows:
-	 * i:	Login
-	 * ii:	SignUp
-	 * iii:	Ready
-	 * iv:	Start
-	 * v:	YourTurn
-	 * vi:	Update
+	 * This method parses the messages sent by the server The messages are in the
+	 * following format: <message type> <message content> The first string
+	 * represents the message type. All the types are as follows: i: Login ii:
+	 * SignUp iii: Ready iv: Start v: YourTurn vi: Update
 	 * 
-	 * Followed by message type, the length of the message content
-	 * varies from their type
+	 * Followed by message type, the length of the message content varies from their
+	 * type
 	 * 
-	 * i.Login
-	 * The content of Login only has one bit:
-	 * 1: Login success
-	 * 0: Login fail
+	 * i.Login The content of Login only has one bit: 1: Login success 0: Login fail
 	 * 
-	 * ii.SignUp
-	 * The content of SignUp only has one bit:
-	 * 1: SignUp success
-	 * 0: SignUp fail
+	 * ii.SignUp The content of SignUp only has one bit: 1: SignUp success 0: SignUp
+	 * fail
 	 * 
-	 * iii.Ready
-	 * Ready represents the ready status of players
-	 * The content has two bits. The first bit represent
-	 * the player id from 0-5 and the second bit
-	 * represents ready status:
-	 * 1: ready
-	 * 0: not ready
+	 * iii.Ready Ready represents the ready status of players The content has two
+	 * bits. The first bit represent the player id from 0-5 and the second bit
+	 * represents ready status: 1: ready 0: not ready
 	 * 
-	 * iv.Start
-	 * The Start message does not have content. It is
-	 * just a notification from server to initialise
-	 * the chess position
+	 * iv.Start The Start message does not have content. It is just a notification
+	 * from server to initialise the chess position
 	 * 
-	 * v.YourTurn
-	 * The YourTurn message does not have content. It
-	 * is just a notification from server to enable 
-	 * action
+	 * v.YourTurn The YourTurn message does not have content. It is just a
+	 * notification from server to enable action
 	 * 
-	 * vi.Update
-	 * The Update message is the most complicated one.
-	 * The first bit in the content represents the 
-	 * type of data need to update. There are generally
-	 * n types of data:
-	 * 1.Position
-	 * 2.Money
-	 * 3.BlockOwner
-	 * 4.BlockLevel
-	 * 5.OwnedProperty
-	 * 6.Alive
-	 * 7.InJail
-	 * 8.Dice
+	 * vi.Update The Update message is the most complicated one. The first bit in
+	 * the content represents the type of data need to update. There are generally n
+	 * types of data: 1.Position 2.Money 3.BlockOwner 4.BlockLevel 5.OwnedProperty
+	 * 6.Alive 7.InJail 8.Dice 9.NickName
 	 * 
 	 * @param info the message sent by the server
 	 */
 	public void parseInfo(String info) {
 		String[] infos = info.split(" ");
-		if(infos[0].equals("Login")) {
-			if(infos[1].equals("1"))
-				Platform.runLater(()->gui.mainPage());
+		if (infos[0].equals("Login")) {
+			if (infos[1].equals("1"))
+				Platform.runLater(() -> gui.mainPage());
 			else
-				Platform.runLater(()->gui.loginFailed());
-		}
-		else if(infos[0].equals("SignUp")) {
-			if(infos[1].equals("1"))
-				Platform.runLater(()->gui.signUpSuccess());
+				Platform.runLater(() -> gui.loginFailed());
+		} else if (infos[0].equals("SignUp")) {
+			if (infos[1].equals("1"))
+				Platform.runLater(() -> gui.signUpSuccess());
 			else
-				Platform.runLater(()->gui.signUpFail());
-		}
-		else if(infos[0].equals("RollDice")) {
+				Platform.runLater(() -> gui.signUpFail());
+		} else if (infos[0].equals("RollDice")) {
 			System.out.println("Enter any to roll dice");
 			keyIn.nextLine();
 			this.send("RollDice");
-		}
-		else if(infos[0].equals("YourTurn")) {
-			
-		}
-		else if(infos[0].equals("Update")) {
-			if(infos[1].equals("Position")) {
+		} else if (infos[0].equals("YourTurn")) {
+
+		} else if (infos[0].equals("Update")) {
+			if (infos[1].equals("Position")) {
 				this.players.get(Integer.parseInt(infos[2])).setCurrentPosition(Integer.parseInt(infos[3]));
 				MainGameDesk.update();
+			} else if (infos[1].equals("Money")) {
+
+			} else if (infos[1].equals("BlockOwner")) {
+
+			} else if (infos[1].equals("BlockLevel")) {
+
+			} else if (infos[1].equals("OwnedProperty")) {
+
+			} else if (infos[1].equals("Alive")) {
+
+			} else if (infos[1].equals("InJail")) {
+
+			} else if (infos[1].equals("Dice")) {
+
 			}
-			else if(infos[1].equals("Money")) {
-				
-			}
-			else if(infos[1].equals("BlockOwner")) {
-				
-			}
-			else if(infos[1].equals("BlockLevel")) {
-				
-			}
-			else if(infos[1].equals("OwnedProperty")) {
-				
-			}
-			else if(infos[1].equals("Alive")) {
-				
-			}
-			else if(infos[1].equals("InJail")) {
-				
-			}
-			else if(infos[1].equals("Dice")) {
-				
-			}
-		}
-		else if(infos[0].equals("Start")) {
-			this.map= new GameMap().getMap();
+		} else if (infos[0].equals("Start")) {
+			this.map = new GameMap().getMap();
 			this.players = new LinkedList<>();
 			this.players.add(new Player(0));
-			MainGameDesk.players=this.players;
+			MainGameDesk.players = this.players;
 			MainGameDesk.update();
-		}
-		else if(infos[0].equals("Ready")) {
-			
+		} else if (infos[0].equals("Ready")) {
+
+		} else if (infos[0].equals("NickName")) {
+			if (infos.length == 1) {
+				Platform.runLater(() -> {
+					gui.nickName();
+				});
+			}
+			else if(infos[1].equals("1")) {
+				Platform.runLater(()->{
+					gui.mainPage();
+				});
+			}
+			else {
+				Platform.runLater(()->{
+					gui.nickNameFail();
+				});
+			}
 		}
 	}
 
 	public void send(String info) {
 		out.println(info);
 	}
+
 	public void close() {
 		try {
 			this.out.close();

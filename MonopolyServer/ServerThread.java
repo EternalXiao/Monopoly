@@ -18,6 +18,7 @@ public class ServerThread extends Thread {
 	// temp
 	private int inGameId;
 	private String name;
+	private int uid;
 
 	public ServerThread(Socket client, Connection dbCon, MainServer server, int inGameId) {
 		this.client = client;
@@ -32,9 +33,11 @@ public class ServerThread extends Thread {
 		}
 
 	}
+
 	public int getInGameId() {
 		return this.inGameId;
 	}
+
 	public void setInGameId(int inGameId) {
 		this.inGameId = inGameId;
 	}
@@ -44,51 +47,50 @@ public class ServerThread extends Thread {
 		System.out.println("Connecting from : " + this.client.getInetAddress());
 		this.listenClient();
 	}
+
 	/**
-	 * This method parses the message sent by the client
-	 * The message are in the following format:
-	 * <message type> <message content>
-	 * The first string represents the message type. All the types
-	 * are as follows:
-	 * i:	Login
-	 * ii:	SignUp
-	 * iii:	Ready
-	 * iv:	RollDice
-	 * v:	Buy
+	 * This method parses the message sent by the client The message are in the
+	 * following format: <message type> <message content> The first string
+	 * represents the message type. All the types are as follows: i: Login ii:
+	 * SignUp iii: Ready iv: RollDice v: Buy
 	 * 
-	 * Followed by message type, the length of the message content
-	 * varies from their type
+	 * Followed by message type, the length of the message content varies from their
+	 * type
 	 * 
-	 * i.Login
-	 * The content of the Login comprises of two bits
-	 * The first bit represents the username of the client and the
-	 * second is the password
+	 * i.Login The content of the Login comprises of two bits The first bit
+	 * represents the username of the client and the second is the password
 	 * 
-	 * ii.SignUp
-	 * The content of the SignUp comprises of two bits
-	 * The first bit represents the username of the client and the
-	 * second is the password
+	 * ii.SignUp The content of the SignUp comprises of two bits The first bit
+	 * represents the username of the client and the second is the password
 	 * 
-	 * iii.Ready
-	 * The content of Ready has only one bit:
-	 * 1:player ready
-	 * 0:player not ready
+	 * iii.Ready The content of Ready has only one bit: 1:player ready 0:player not
+	 * ready
+	 * 
 	 * @param info
 	 * @throws Exception
 	 */
 	public void parseInfo(String info) throws Exception {
 		String[] infos = info.split(" ");
 		if (infos[0].equals("Login")) {
-			String login = "select count(*) from users where username = ? and password = ?";
+			String login = "select uid from users where username = ? and password = ?";
 			PreparedStatement loginStatement = dbCon.prepareStatement(login);
 			loginStatement.setString(1, infos[1]);
 			loginStatement.setString(2, infos[2]);
 			ResultSet rs = loginStatement.executeQuery();
-			rs.next();
-			int result = rs.getInt(1);
-			if (result == 1)
-				this.send("Login 1");
-			else
+			if (rs.next()) {
+				this.uid= rs.getInt(1);
+				String nickName = "select nickname from users where uid = ?";
+				PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
+				nickNameStatement.setInt(1, this.uid);
+				rs = nickNameStatement.executeQuery();
+				rs.next();
+				this.name = rs.getString(1);
+				if(this.name==null) {
+					this.send("NickName");
+				}
+				else
+					this.send("Login 1");
+			} else
 				this.send("Login 0");
 		} else if (infos[0].equals("SignUp")) {
 			String signUpVeri = "select count(*) from users where username = ?";
@@ -124,6 +126,27 @@ public class ServerThread extends Thread {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
+		}
+		else if (infos[0].equals("NickName")) {
+			String nickName = "select count(*) from users where nickname = ?";
+			PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
+			nickNameStatement.setString(1, infos[1]);
+			ResultSet rs = nickNameStatement.executeQuery();
+			rs.next();
+			if(rs.getInt(1)==0) {
+				this.name = infos[1];
+				this.send("NickName 1");
+				String insertNickName = "update users set nickname = ? where uid = ?";
+				PreparedStatement insertNickNameStatement = dbCon.prepareStatement(insertNickName);
+				insertNickNameStatement.setString(1, infos[1]);
+				insertNickNameStatement.setInt(2, this.uid);
+				insertNickNameStatement.executeQuery();
+				
+			}
+			else {
+				this.send("NickName 0");
+			}
+			
 		}
 	}
 

@@ -139,92 +139,6 @@ public class MainGameDesk extends Application {
 
 	}
 
-	public static String lookupFile(String figureName) {
-		switch (figureName) {
-		case "Go":
-			return "Go.jpg";
-		case "Old Kent Road":
-			return "Old Kent Road.jpg";
-		case "Chance1":
-			return "Chance1.jpg";
-		case "Whitechapel Road":
-			return "Whitechapel.jpg";
-		case "Income Tax":
-			return "Income Tax.jpg";
-		case "King's Cross Station":
-			return "King's Cross Station.jpg";
-		case "The Angel Islington":
-			return "The Angel Islington.jpg";
-		case "Chance2":
-			return "Chance2.jpg";
-		case "Euston Road":
-			return "Euston Road.jpg";
-		case "Pentonville Road":
-			return "Pentonville.jpg";
-		case "Jail":
-			return "Jail.jpg";
-		case "Pall Mall":
-			return "Pall Mall.jpg";
-		case "Electric Company":
-			return "Electric Company.jpg";
-		case "Whitehall":
-			return "Whitehall.jpg";
-		case "Northumberland Avenue":
-			return "Northumberland.jpg";
-		case "Marylebone Station":
-			return "Marylebone Station.jpg";
-		case "Bow Street":
-			return "Bow Street.jpg";
-		case "Chance3":
-			return "Chance3.jpg";
-		case "Marlborough Street":
-			return "Marlborough Street.jpg";
-		case "Vine Street":
-			return "Vine Street.jpg";
-		case "Free Parking":
-			return "Free Parking.jpg";
-		case "The Strand":
-			return "The Strand.jpg";
-		case "Chance4":
-			return "Chance4.jpg";
-		case "Fleet Street":
-			return "Fleet Street.jpg";
-		case "Trafalgar Square":
-			return "Trafalgar Square.jpg";
-		case "Fenchurch st Station":
-			return "Fenchurch st Station.jpg";
-		case "Leicester Square":
-			return "Leicester Square.jpg";
-		case "Coventry Street":
-			return "Coventry Street.jpg";
-		case "Water Works":
-			return "Water Works.jpg";
-		case "Piccadilly":
-			return "Piccadilly.jpg";
-		case "Go To Jail":
-			return "Go To Jail.jpg";
-		case "Regent Street":
-			return "Regent Street.jpg";
-		case "Oxford Street":
-			return "Oxford Street.jpg";
-		case "Chance5":
-			return "Chance5.jpg";
-		case "Bond Street":
-			return "Bond Street.jpg";
-		case "Liverpool Street Station":
-			return "Liverpool Street Station.jpg";
-		case "Chance6":
-			return "Chance6.jpg";
-		case "Park Lane":
-			return "Park Lane.jpg";
-		case "Super Tax":
-			return "Super Tax.jpg";
-		case "Mayfair":
-			return "Mayfair.jpg";
-		default:
-			return "empty.jpg";
-		}
-	}
 
 	public static void update() {
 		Player player = players.get(0);
@@ -255,13 +169,6 @@ public class MainGameDesk extends Application {
 		System.out.println("Enter any to ready");
 		in.nextLine();
 		client.send("Ready 1");
-//		Scene scene = new Scene(root);
-//		stage.setScene(scene);
-//		stage.show();
-//		players = new LinkedList<>();
-//		players.add(new Player(0));
-//		System.out.println(players);
-//		update();
 	}
 
 	/**

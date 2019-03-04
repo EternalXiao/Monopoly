@@ -34,9 +34,9 @@ public class MainServer {
 	}
 	public boolean build() {
 		try {
-//			Class.forName(DBDRIVER);
+			Class.forName(DBDRIVER);
 			server = new ServerSocket(this.port);
-//			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
+			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
 			System.out.println("Server launched...");
 			//test
 			game = new Game(this);
@@ -88,7 +88,7 @@ public class MainServer {
 	}
 	public boolean checkStart() {
 		for(Player player:game.getPlayers()) {
-			if(!player.isReady())
+			if(!player.isReady()||game.getPlayers().size()<2)
 				return false;
 		}
 		return true;

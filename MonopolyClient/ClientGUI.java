@@ -1,5 +1,6 @@
 package MonopolyClient;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -134,6 +135,7 @@ public class ClientGUI {
 		signUpFail.setText("Username has been used");
 		signUpFail.setTextFill(Color.RED);
 	}
+
 	public void signUpSuccess() {
 		Label signUpSuccess = (Label) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
 		signUpSuccess.setText("Account created");
@@ -141,7 +143,28 @@ public class ClientGUI {
 	}
 
 	public void nickName() {
-
+		GridPane root = new GridPane();
+		root.setAlignment(Pos.CENTER);
+		root.setHgap(10);
+		root.setVgap(10);
+		root.setPadding(new Insets(25, 25, 25, 25));
+		Label prompt = new Label();
+		Label nickName = new Label("Please choose your nickname");
+		TextField nickNameField = new TextField();
+		Button submit = new Button("Submit");
+		submit.setOnAction(e -> {
+			client.send("NickName " + nickNameField.getText());
+		});
+		root.add(prompt, 0, 0, 2, 1);
+		root.add(nickName, 0, 1);
+		root.add(nickNameField, 1, 1);
+		root.add(submit, 1, 2);
+		this.stage.setScene(new Scene(root));
+	}
+	public void nickNameFail() {
+		Label nickNameFail = (Label)this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
+		nickNameFail.setText("Nickname has already been used");
+		nickNameFail.setTextFill(Color.RED);
 	}
 
 	public void close() {
