@@ -75,6 +75,7 @@ public class Game {
 			dice2 = Dice.rollDice();
 			server.sendAll("Update Dice "+dice1+" "+dice2);
 			System.out.println("You roll out "+dice1 +" and "+dice2);
+			player.setPreviousPosition(player.getCurrentPosition());
 			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
 			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
 			Block block = map[player.getCurrentPosition()];

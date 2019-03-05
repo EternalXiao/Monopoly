@@ -153,9 +153,10 @@ public class MainClient {
 
 		} else if (infos[0].equals("Update")) {
 			if (infos[1].equals("Position")) {
+				this.players.get(Integer.parseInt(infos[2])).setPreviousPosition(this.players.get(Integer.parseInt(infos[2])).getCurrentPosition());
 				this.players.get(Integer.parseInt(infos[2])).setCurrentPosition(Integer.parseInt(infos[3]));
 				Platform.runLater(()->{
-					gui.updatePlayer();
+					gui.updatePlayer(Integer.parseInt(infos[2]));
 				});
 				
 			} else if (infos[1].equals("Money")) {
@@ -181,7 +182,7 @@ public class MainClient {
 			this.map = new GameMap().getMap();
 			Platform.runLater(()->{
 				gui.loadChess();
-				gui.updatePlayer();
+				gui.updateAllPlayer();
 			});
 			
 			

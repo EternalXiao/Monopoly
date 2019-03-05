@@ -375,10 +375,14 @@ public class ClientGUI {
 		}
 	}
 
-	public void updatePlayer() {
+	public void updateAllPlayer() {
 		for (int i=0;i<this.client.getPlayers().size();i++) {
-			this.mainRoot.getChildren().remove(this.playerChess[i]);
-			this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(playerChess[i], chessXAxis[i], chessYAxis[i]);
+			this.chess[this.client.getPlayers().get(i).getPreviousPosition()].getChildren().remove(this.playerChess[i]);
+			this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(this.playerChess[i], chessXAxis[i], chessYAxis[i]);
 		}
+	}
+	public void updatePlayer(int i) {
+		this.chess[this.client.getPlayers().get(i).getPreviousPosition()].getChildren().remove(this.playerChess[i]);
+		this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(this.playerChess[i], chessXAxis[i], chessYAxis[i]);
 	}
 }

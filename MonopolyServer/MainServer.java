@@ -38,6 +38,7 @@ public class MainServer {
 			server = new ServerSocket(this.port);
 			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
 			System.out.println("Server launched...");
+			System.out.println(server.getInetAddress().getLocalHost());
 			//test
 			game = new Game(this);
 			return true;
