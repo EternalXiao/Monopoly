@@ -77,7 +77,6 @@ public class Game {
 			System.out.println("You roll out "+dice1 +" and "+dice2);
 			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
 			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
-			// Platform.runLater(()->mp.update());
 			Block block = map[player.getCurrentPosition()];
 			System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
 		}

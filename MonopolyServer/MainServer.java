@@ -88,7 +88,7 @@ public class MainServer {
 	}
 	public boolean checkStart() {
 		for(Player player:game.getPlayers()) {
-			if(!player.isReady()||game.getPlayers().size()<2)
+			if(!player.isReady())
 				return false;
 		}
 		return true;

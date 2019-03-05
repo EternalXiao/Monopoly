@@ -74,6 +74,9 @@ public class MainClient {
 	public int getPort() {
 		return this.port;
 	}
+	public LinkedList<Player> getPlayers(){
+		return this.players;
+	}
 
 	public void login(String username, String password) {
 		this.send("Login " + username + " " + password);
@@ -151,7 +154,10 @@ public class MainClient {
 		} else if (infos[0].equals("Update")) {
 			if (infos[1].equals("Position")) {
 				this.players.get(Integer.parseInt(infos[2])).setCurrentPosition(Integer.parseInt(infos[3]));
-				MainGameDesk.update();
+				Platform.runLater(()->{
+					gui.updatePlayer();
+				});
+				
 			} else if (infos[1].equals("Money")) {
 
 			} else if (infos[1].equals("BlockOwner")) {
@@ -165,14 +171,20 @@ public class MainClient {
 			} else if (infos[1].equals("InJail")) {
 
 			} else if (infos[1].equals("Dice")) {
-
+				Platform.runLater(()->{
+					gui.toggleDice(gui.getDiceLeft(), Integer.parseInt(infos[2]));
+					gui.toggleDice(gui.getDiceRight(), Integer.parseInt(infos[3]));
+				});
+				
 			}
 		} else if (infos[0].equals("Start")) {
 			this.map = new GameMap().getMap();
-			this.players = new LinkedList<>();
-			this.players.add(new Player(0));
-			MainGameDesk.players = this.players;
-			MainGameDesk.update();
+			Platform.runLater(()->{
+				gui.loadChess();
+				gui.updatePlayer();
+			});
+			
+			
 		} else if (infos[0].equals("Ready")) {
 
 		} else if (infos[0].equals("NickName")) {
@@ -190,6 +202,12 @@ public class MainClient {
 				Platform.runLater(()->{
 					gui.nickNameFail();
 				});
+			}
+		}
+		else if(infos[0].equals("PlayerCount")) {
+			this.players = new LinkedList<>();
+			for(int i=0;i<Integer.parseInt(infos[1]);i++) {
+				this.players.add(new Player(i));
 			}
 		}
 	}

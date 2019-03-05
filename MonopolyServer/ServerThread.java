@@ -114,6 +114,7 @@ public class ServerThread extends Thread {
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
 					new Thread(() -> {
+						server.sendAll("PlayerCount "+server.getGame().getPlayers().size());
 						server.sendAll("Start");
 						System.out.println("Game start!");
 						while (true) {

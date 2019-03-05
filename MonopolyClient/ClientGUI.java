@@ -1,5 +1,7 @@
 package MonopolyClient;
 
+import MonopolyServer.game.Player;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -9,17 +11,92 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class ClientGUI {
 	private Stage stage;
 	private MainClient client;
+	private GridPane mainRoot;
 
+	public final int[] xAxis = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+			9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
+
+	public final int[] yAxis = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+	public final int CELL_WIDTH = 65;
+	public final int[] chessXAxis = { 0, 1 };
+	public final int[] chessYAxis = { 0, 0 };
+
+	public final int CELL_HIGHET = 65;
+	public final String[] CELL_NAME = { "Go.jpg", "Old Kent Road.jpg", "Chance1.jpg", "Whitechapel.jpg",
+			"Income Tax.jpg", "King's Cross Station.jpg", "The Angel Islington.jpg", "Chance2.jpg", "Euston Road.jpg",
+			"Pentonville.jpg", "Jail.jpg", "Pall Mall.jpg", "Electric Company.jpg", "Whitehall.jpg",
+			"Northumberland.jpg", "Marylebone Station.jpg", "Bow Street.jpg", "Chance3.jpg", "Marlborough Street.jpg",
+			"Vine Street.jpg", "Free Parking.jpg", "The Strand.jpg", "Chance4.jpg", "Fleet Street.jpg",
+			"Trafalgar Square.jpg", "Fenchurch st Station.jpg", "Leicester Square.jpg", "Coventry Street.jpg",
+			"Water Works.jpg", "Piccadilly.jpg", "Go To Jail.jpg", "Regent Street.jpg", "Oxford Street.jpg",
+			"Chance5.jpg", "Bond Street.jpg", "Liverpool Street Station.jpg", "Chance6.jpg", "Park Lane.jpg",
+			"Super Tax.jpg", "Mayfair.jpg" };
+	/**
+	 * 设置棋盘大小为11*11
+	 */
+	private String[][] gameDesk = new String[11][11];
+
+	/**
+	 * 图片层大小11*11
+	 */
+	private ImageView[] imageViews = new ImageView[40];
+
+	/**
+	 * 储存着长方形对象的array(棋盘格子)大小为11*11
+	 *
+	 */
+	private Rectangle[][] squares = new Rectangle[11][11];
+	private ImageView[] playerChess = new ImageView[6];
+	/**
+	 * 存储棋子和房子
+	 */
+	private GridPane[] chess = new GridPane[40];
+	/**
+	 * 创建两个长方形存放骰子object
+	 */
+	private Rectangle diceLeft;
+	private Rectangle diceRight;
+
+	public Rectangle getDiceLeft() {
+		return this.diceLeft;
+	}
+
+	public Rectangle getDiceRight() {
+		return this.diceRight;
+	}
+
+	/**
+	 * 设置当前两个骰子的值
+	 */
+	public int leftDiceValue = 0;
+	public int rightDiceValue = 0;
+	/**
+	 * 存放6张骰子的照片
+	 */
+	private ImagePattern[] dice = new ImagePattern[7];
+	private final String[] diceOrder = { "0", "1", "2", "3", "4", "5", "6" };
+	/**
+	 * 用于存放默认骰子的照片
+	 */
+	private final ImagePattern diceDefault = new ImagePattern(new Image("file:src/image/default.jpg"));
+	private final String[] chessName = {"towerBlack","queenWhite"};
 	public ClientGUI(Stage stage, MainClient client) {
 		this.stage = stage;
 		this.client = client;
@@ -112,16 +189,21 @@ public class ClientGUI {
 	}
 
 	public void mainPage() {
-		Button signOut = new Button("Sign out");
-		Label title = new Label("Main Page");
-		title.setLayoutX(300);
-		title.setLayoutY(100);
-		title.setStyle("-fx-font-size:50px");
-		signOut.setOnAction(e -> {
-			loginPage();
-		});
-		Group root = new Group(signOut, title);
-		stage.setScene(new Scene(root));
+		BorderPane borderPane = new BorderPane();
+		GridPane root = new GridPane();
+		this.mainRoot = root;
+		
+		drawCell(root);
+		drawDice(root);
+		drawChessPlace(root);
+		HBox bottomGameDesk;
+		bottomGameDesk = drawBottomGameDesk();
+
+		borderPane.setCenter(root);
+		borderPane.setBottom(bottomGameDesk);
+		stage.setResizable(false);
+		Scene scene = new Scene(borderPane, 800, 1000);
+		this.stage.setScene(scene);
 	}
 
 	public void loginFailed() {
@@ -161,8 +243,9 @@ public class ClientGUI {
 		root.add(submit, 1, 2);
 		this.stage.setScene(new Scene(root));
 	}
+
 	public void nickNameFail() {
-		Label nickNameFail = (Label)this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
+		Label nickNameFail = (Label) this.findElement(0, 0, (GridPane) this.stage.getScene().getRoot());
 		nickNameFail.setText("Nickname has already been used");
 		nickNameFail.setTextFill(Color.RED);
 	}
@@ -189,5 +272,107 @@ public class ClientGUI {
 			}
 		}
 		return result;
+	}
+
+	public void initializeGameDesk() {
+		for (int i = 0; i < 40; i++)
+			gameDesk[xAxis[i]][yAxis[i]] = "";
+	}
+
+	public void setDiceValue(int leftV, int rightV) {
+		leftDiceValue = leftV;
+		rightDiceValue = rightV;
+	}
+
+	public void drawSingleCell(GridPane root, int i) {
+		Image cellImage = new Image("file:src/image/" + CELL_NAME[i]);
+		System.out.println(cellImage.getHeight() + " " + cellImage.getWidth());
+
+		ImageView tempImage = new ImageView(cellImage);
+		if (((xAxis[i] == 0) && (yAxis[i] == 0)) || ((xAxis[i] == 10) && (yAxis[i] == 10))
+				|| ((xAxis[i] == 10) && (yAxis[i] == 0)) || ((xAxis[i] == 0) && (yAxis[i] == 10))) {
+			tempImage.setFitWidth(106);
+			tempImage.setFitHeight(106);
+		} else {
+			if ((yAxis[i] == 0) || (yAxis[i] == 10)) {
+				tempImage.setFitWidth(65);
+				tempImage.setFitHeight(106);
+			} else {
+				tempImage.setFitWidth(106);
+				tempImage.setFitHeight(65);
+			}
+		}
+
+		imageViews[i] = tempImage;
+
+		root.add(imageViews[i], xAxis[i], yAxis[i]);
+	}
+
+	public void drawDice(GridPane root) {
+		diceLeft = new Rectangle(65, 65);
+		diceRight = new Rectangle(65, 65);
+
+		diceLeft.setFill(diceDefault);
+		diceRight.setFill(diceDefault);
+
+		root.add(diceLeft, 4, 5);
+		root.add(diceRight, 6, 5);
+		for (int i = 1; i < 7; i++) {
+			dice[i] = new ImagePattern(new Image("file:src/image/" + diceOrder[i] + ".png"));
+		}
+	}
+
+	public synchronized void toggleDice(Rectangle currentDice, int number) {
+		currentDice.setFill(dice[number]);
+	}
+
+	public HBox drawBottomGameDesk() {
+		HBox tempHBox = new HBox(100);
+		Button readyButton = new Button("Ready");
+		Button rollButton = new Button("Roll");
+		Button updateButton = new Button("Update");
+		Button buyButton = new Button("Buy");
+		Button sellButton = new Button("Sell");
+		tempHBox.getChildren().addAll(readyButton, rollButton, updateButton, buyButton, sellButton);
+		tempHBox.setAlignment(Pos.TOP_CENTER);
+		tempHBox.setPrefSize(800, 200);
+
+		rollButton.setOnAction(e -> {
+			client.send("RollDice");
+		});
+		readyButton.setOnAction(e->{
+			client.send("Ready 1");
+		});
+		return tempHBox;
+
+	}
+
+	public void drawCell(GridPane root) {
+
+		for (int i = 0; i < 40; i++)
+			drawSingleCell(root, i);
+	}
+
+	public void loadChess() {
+		for (int i = 0; i < client.getPlayers().size(); i++) {
+			this.playerChess[i] = new ImageView(new Image("file:src/image/" + chessName[i] + ".gif"));
+			this.playerChess[i].setFitHeight(20);
+			this.playerChess[i].setFitWidth(20);
+		}
+	}
+
+	public void drawChessPlace(GridPane root) {
+		for (int i = 0; i < 40; i++) {
+			chess[i] = new GridPane();
+			root.add(this.chess[i], xAxis[i], yAxis[i]);
+			this.chess[i].setAlignment(Pos.CENTER);
+		}
+	}
+
+	public void updatePlayer() {
+		for (int i=0;i<this.client.getPlayers().size();i++) {
+			this.mainRoot.getChildren().remove(this.playerChess[i]);
+			this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(playerChess[i], chessXAxis[i], chessYAxis[i]);
+		}
 	}
 }
