@@ -146,9 +146,9 @@ public class MainClient {
 			else
 				Platform.runLater(() -> gui.signUpFail());
 		} else if (infos[0].equals("RollDice")) {
-			System.out.println("Enter any to roll dice");
-			keyIn.nextLine();
-			this.send("RollDice");
+			Platform.runLater(()->{
+				gui.getRollButton().setDisable(false);
+			});
 		} else if (infos[0].equals("YourTurn")) {
 
 		} else if (infos[0].equals("Update")) {

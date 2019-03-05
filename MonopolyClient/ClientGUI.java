@@ -27,6 +27,10 @@ public class ClientGUI {
 	private Stage stage;
 	private MainClient client;
 	private GridPane mainRoot;
+	private Button rollButton;
+	public Button getRollButton() {
+		return this.rollButton;
+	}
 
 	public final int[] xAxis = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
 			9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
@@ -329,16 +333,18 @@ public class ClientGUI {
 	public HBox drawBottomGameDesk() {
 		HBox tempHBox = new HBox(100);
 		Button readyButton = new Button("Ready");
-		Button rollButton = new Button("Roll");
+		rollButton = new Button("Roll");
 		Button updateButton = new Button("Update");
 		Button buyButton = new Button("Buy");
 		Button sellButton = new Button("Sell");
+		rollButton.setDisable(true);
 		tempHBox.getChildren().addAll(readyButton, rollButton, updateButton, buyButton, sellButton);
 		tempHBox.setAlignment(Pos.TOP_CENTER);
 		tempHBox.setPrefSize(800, 200);
 
 		rollButton.setOnAction(e -> {
 			client.send("RollDice");
+			rollButton.setDisable(true);
 		});
 		readyButton.setOnAction(e->{
 			client.send("Ready 1");
