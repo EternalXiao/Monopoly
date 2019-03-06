@@ -3,13 +3,11 @@ package MonopolyClient;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 import javafx.application.Platform;
 import MonopolyServer.game.*;
-import gui.MainGameDesk;
 
 public class MainClient {
 	private Socket client;
@@ -87,7 +85,10 @@ public class MainClient {
 	public void signUp(String username, String password) {
 		this.send("SignUp " + username + " " + password);
 	}
-
+	/**
+	 * This method will create a new thread to listen to the server and
+	 * parse the message received
+	 */
 	public void listenServer() {
 		new Thread(() -> {
 			while (client.isConnected()) {
@@ -183,15 +184,19 @@ public class MainClient {
 				gui.updatePlayer(Integer.parseInt(infos[2]));
 
 			} else if (infos[1].equals("Money")) {
-
+				this.players.get(Integer.parseInt(infos[2])).setMoney(Integer.parseInt(infos[3]));
+				//money update
 			} else if (infos[1].equals("BlockOwner")) {
-
+				((Property)this.map[Integer.parseInt(infos[2])]).setOwner(this.players.get(Integer.parseInt(infos[3])));
+				//owner update
 			} else if (infos[1].equals("BlockLevel")) {
-
+				((Street)this.map[Integer.parseInt(infos[2])]).setLevel(Integer.parseInt(infos[3]));
+				//level update
 			} else if (infos[1].equals("OwnedProperty")) {
 
 			} else if (infos[1].equals("Alive")) {
-
+				this.players.get(Integer.parseInt(infos[2])).setAlive(false);
+				//alive update
 			} else if (infos[1].equals("InJail")) {
 
 			} else if (infos[1].equals("Dice")) {
@@ -201,7 +206,9 @@ public class MainClient {
 				});
 
 			}
-		} else if (infos[0].equals("NickName")) {
+		}
+		//Handle NickName message
+		else if (infos[0].equals("NickName")) {
 			if (infos.length == 1) {
 				Platform.runLater(() -> {
 					gui.nickName();
@@ -221,11 +228,16 @@ public class MainClient {
 			this.players.add(new Player(Integer.parseInt(infos[1]),infos[2]));
 		}
 	}
-
+	/**
+	 * This method send messages to the server
+	 * @param info the messgae to be sent
+	 */
 	public void send(String info) {
 		out.println(info);
 	}
-
+	/**
+	 * This method will close the conncetion to server
+	 */
 	public void close() {
 		try {
 			this.out.close();
