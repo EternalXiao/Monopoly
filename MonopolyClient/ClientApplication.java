@@ -25,8 +25,8 @@ public class ClientApplication extends Application{
 		client.setGUI(gui);
 		//gui.initPage();
 		gui.loginPage();
-		stage.setWidth(WIDTH);
-		stage.setHeight(HEIGHT);
+		//stage.setWidth(WIDTH);
+		//stage.setHeight(HEIGHT);
 		stage.setTitle("Monopoly");
 		stage.setResizable(false);
 		stage.show();

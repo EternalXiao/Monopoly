@@ -4,12 +4,14 @@ import java.util.LinkedList;
 
 public class Player {
 	private int currentPosition;
+	private int previousPosition;
 	private int money;
 	private int inGameId;
 	private String name;
 	private boolean isInJail;
 	private boolean isAlive;
 	private boolean isReady;
+	
 	LinkedList<Property> ownedProperties;
 	public Player() {
 		this.currentPosition=0;
@@ -22,6 +24,7 @@ public class Player {
 	public Player(int inGameId) {
 		this.inGameId=inGameId;
 		this.currentPosition=0;
+		this.previousPosition=0;
 		this.money=1500;
 		this.isInJail=false;
 		this.isAlive=true;
@@ -42,6 +45,13 @@ public class Player {
 	}
 	public void setCurrentPosition(int currentPosition) {
 		this.currentPosition = currentPosition;
+	}
+	
+	public int getPreviousPosition() {
+		return previousPosition;
+	}
+	public void setPreviousPosition(int previousPosition) {
+		this.previousPosition = previousPosition;
 	}
 	public int getMoney() {
 		return money;
