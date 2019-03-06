@@ -1,6 +1,7 @@
 package MonopolyClient;
 
 import MonopolyServer.game.Player;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,6 +29,7 @@ public class ClientGUI {
 	private MainClient client;
 	private GridPane mainRoot;
 	private Button rollButton;
+
 	public Button getRollButton() {
 		return this.rollButton;
 	}
@@ -100,7 +102,8 @@ public class ClientGUI {
 	 * 用于存放默认骰子的照片
 	 */
 	private final ImagePattern diceDefault = new ImagePattern(new Image("file:src/image/default.jpg"));
-	private final String[] chessName = {"towerBlack","queenWhite"};
+	private final String[] chessName = { "towerBlack", "queenWhite" };
+
 	public ClientGUI(Stage stage, MainClient client) {
 		this.stage = stage;
 		this.client = client;
@@ -196,7 +199,7 @@ public class ClientGUI {
 		BorderPane borderPane = new BorderPane();
 		GridPane root = new GridPane();
 		this.mainRoot = root;
-		
+
 		drawCell(root);
 		drawDice(root);
 		drawChessPlace(root);
@@ -346,7 +349,7 @@ public class ClientGUI {
 			client.send("RollDice");
 			rollButton.setDisable(true);
 		});
-		readyButton.setOnAction(e->{
+		readyButton.setOnAction(e -> {
 			client.send("Ready 1");
 		});
 		return tempHBox;
@@ -375,14 +378,31 @@ public class ClientGUI {
 		}
 	}
 
-	public void updateAllPlayer() {
-		for (int i=0;i<this.client.getPlayers().size();i++) {
+	public void initialisePlayer() {
+		for (int i = 0; i < this.client.getPlayers().size(); i++) {
 			this.chess[this.client.getPlayers().get(i).getPreviousPosition()].getChildren().remove(this.playerChess[i]);
-			this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(this.playerChess[i], chessXAxis[i], chessYAxis[i]);
+			this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(this.playerChess[i], chessXAxis[i],
+					chessYAxis[i]);
 		}
 	}
+
 	public void updatePlayer(int i) {
-		this.chess[this.client.getPlayers().get(i).getPreviousPosition()].getChildren().remove(this.playerChess[i]);
-		this.chess[this.client.getPlayers().get(i).getCurrentPosition()].add(this.playerChess[i], chessXAxis[i], chessYAxis[i]);
+		int curPos, prePos;
+		prePos = this.client.getPlayers().get(i).getPreviousPosition();
+		curPos = this.client.getPlayers().get(i).getCurrentPosition();
+		for (int x = prePos; x != curPos; x = (x + 1) % 40) {
+			final int j = x;
+			Platform.runLater(()->{
+				this.chess[j].getChildren().remove(this.playerChess[i]);
+				this.chess[(j+1)%40].add(this.playerChess[i], chessXAxis[i], chessYAxis[i]);
+			});
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

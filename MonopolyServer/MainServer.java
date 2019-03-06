@@ -1,6 +1,7 @@
 package MonopolyServer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -38,7 +39,8 @@ public class MainServer {
 			server = new ServerSocket(this.port);
 			dbCon = DriverManager.getConnection(DBURL, USER, PASSWORD);
 			System.out.println("Server launched...");
-			System.out.println(server.getInetAddress().getLocalHost());
+			server.getInetAddress();
+			System.out.println(InetAddress.getLocalHost());
 			//test
 			game = new Game(this);
 			return true;
@@ -47,7 +49,11 @@ public class MainServer {
 			return false;
 		}
 	}
-
+	/**
+	 * This method is to close all the conncetions to the clients and
+	 * then close the server socket
+	 * @throws Exception
+	 */
 	public void close() throws Exception {
 		System.out.println("Server closing...");
 		for(ServerThread st:this.connectedClients) {

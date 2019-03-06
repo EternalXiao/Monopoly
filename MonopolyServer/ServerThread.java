@@ -54,7 +54,7 @@ public class ServerThread extends Thread {
 	 * This method parses the message sent by the client The message are in the
 	 * following format: <message type> <message content> The first string
 	 * represents the message type. All the types are as follows: i: Login ii:
-	 * SignUp iii: Ready iv: RollDice v: Buy
+	 * SignUp iii: Ready iv: RollDice v: NickName vi: Buy
 	 * 
 	 * Followed by message type, the length of the message content varies from their
 	 * type
@@ -65,14 +65,20 @@ public class ServerThread extends Thread {
 	 * ii.SignUp The content of the SignUp comprises of two bits The first bit
 	 * represents the username of the client and the second is the password
 	 * 
-	 * iii.Ready The content of Ready has only one bit: 1:player ready 0:player not
-	 * ready
+	 * iii.Ready The ready message does not have content. It just toggle the
+	 * ready status of corresponding player
+	 * 
+	 * iv.RollDice This message does not have content. Once received this message,
+	 * the game will proceed to roll dice
+	 * 
+	 * v.NickName 
 	 * 
 	 * @param info
 	 * @throws Exception
 	 */
 	public void parseInfo(String info) throws Exception {
 		String[] infos = info.split(" ");
+		//Handle Login message
 		if (infos[0].equals("Login")) {
 			String login = "select uid from users where username = ? and password = ?";
 			PreparedStatement loginStatement = dbCon.prepareStatement(login);
@@ -94,7 +100,9 @@ public class ServerThread extends Thread {
 					this.send("Login 1");
 			} else
 				this.send("Login 0");
-		} else if (infos[0].equals("SignUp")) {
+		}
+		//Handle SignUp message
+		else if (infos[0].equals("SignUp")) {
 			String signUpVeri = "select count(*) from users where username = ?";
 			PreparedStatement signUpVeriStatement = dbCon.prepareStatement(signUpVeri);
 			signUpVeriStatement.setString(1, infos[1]);
@@ -110,14 +118,16 @@ public class ServerThread extends Thread {
 				signUpStatement.executeQuery();
 			} else
 				this.send("SignUp 0");
-		} else if (infos[0].equals("Ready")) {
+		}
+		//Handle Ready message
+		else if (infos[0].equals("Ready")) {
 			if (infos[1].equals("1")) {
 				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
 					new Thread(() -> {
 						server.sendAll("PlayerCount "+server.getGame().getPlayers().size());
-						server.sendAll("Start");
+		 				server.sendAll("Start");
 						System.out.println("Game start!");
 						while (true) {
 							server.getGame().testNextRound();
@@ -125,11 +135,14 @@ public class ServerThread extends Thread {
 					}).start();
 			}
 
-		} else if (infos[0].equals("RollDice")) {
+		}
+		//Handle RollDice message
+		else if (infos[0].equals("RollDice")) {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
 		}
+		//Handle NickName message
 		else if (infos[0].equals("NickName")) {
 			String nickName = "select count(*) from users where nickname = ?";
 			PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
