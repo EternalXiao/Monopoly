@@ -40,6 +40,17 @@ public class Player {
 		this.name=name;
 		this.ownedProperties = new LinkedList<>();
 	}
+	public Player(int inGameId,String name) {
+		this.inGameId=inGameId;
+		this.name=name;
+		this.currentPosition=0;
+		this.previousPosition=0;
+		this.money=1500;
+		this.isInJail=false;
+		this.isAlive=true;
+		this.isReady=false;
+		this.ownedProperties = new LinkedList<>();
+	}
 	public int getCurrentPosition() {
 		return currentPosition;
 	}

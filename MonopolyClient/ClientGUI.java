@@ -293,7 +293,7 @@ public class ClientGUI {
 
 	public void drawSingleCell(GridPane root, int i) {
 		Image cellImage = new Image("file:src/image/" + CELL_NAME[i]);
-		System.out.println(cellImage.getHeight() + " " + cellImage.getWidth());
+		//System.out.println(cellImage.getHeight() + " " + cellImage.getWidth());
 
 		ImageView tempImage = new ImageView(cellImage);
 		if (((xAxis[i] == 0) && (yAxis[i] == 0)) || ((xAxis[i] == 10) && (yAxis[i] == 10))

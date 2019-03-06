@@ -51,8 +51,8 @@ public class Game {
 		this.alivePlayers = alivePlayers;
 	}
 
-	public void addPlayer() {
-		this.players.add(new Player(this.players.size()));
+	public void addPlayer(String name) {
+		this.players.add(new Player(this.players.size(),name));
 	}
 
 	// temporary
@@ -62,7 +62,7 @@ public class Game {
 			System.out.println("Player " + player.getInGameId() + "'s turn");
 			System.out.println("Enter any character to roll dice");
 			int dice1, dice2;
-			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
+			server.searchThread(this.currentPlayer).send("RollDice");
 			try {
 				wait();
 			} catch (InterruptedException e) {

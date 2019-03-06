@@ -19,12 +19,13 @@ public class ServerThread extends Thread {
 	private int inGameId;
 	private String name;
 	private int uid;
+	private boolean isLoggedIn;
 
-	public ServerThread(Socket client, Connection dbCon, MainServer server, int inGameId) {
+	public ServerThread(Socket client, Connection dbCon, MainServer server) {
 		this.client = client;
 		this.dbCon = dbCon;
 		this.server = server;
-		this.inGameId = inGameId;
+		this.isLoggedIn=false;
 		try {
 			out = new PrintStream(client.getOutputStream());
 			in = new Scanner(client.getInputStream());
@@ -33,7 +34,9 @@ public class ServerThread extends Thread {
 		}
 
 	}
-
+	public boolean getLoggedIn() {
+		return this.isLoggedIn;
+	}
 	public int getInGameId() {
 		return this.inGameId;
 	}
@@ -41,6 +44,7 @@ public class ServerThread extends Thread {
 	public void setInGameId(int inGameId) {
 		this.inGameId = inGameId;
 	}
+
 	/**
 	 * This is the override method which will be run once start method being called
 	 */
@@ -65,20 +69,21 @@ public class ServerThread extends Thread {
 	 * ii.SignUp The content of the SignUp comprises of two bits The first bit
 	 * represents the username of the client and the second is the password
 	 * 
-	 * iii.Ready The ready message does not have content. It just toggle the
-	 * ready status of corresponding player
+	 * iii.Ready The ready message does not have content. It just toggle the ready
+	 * status of corresponding player
 	 * 
 	 * iv.RollDice This message does not have content. Once received this message,
 	 * the game will proceed to roll dice
 	 * 
-	 * v.NickName 
+	 * v.NickName The NickName message contains one bit of content. This bit is the
+	 * nickname the clinet want to use
 	 * 
 	 * @param info
 	 * @throws Exception
 	 */
 	public void parseInfo(String info) throws Exception {
 		String[] infos = info.split(" ");
-		//Handle Login message
+		// Handle Login message
 		if (infos[0].equals("Login")) {
 			String login = "select uid from users where username = ? and password = ?";
 			PreparedStatement loginStatement = dbCon.prepareStatement(login);
@@ -86,22 +91,31 @@ public class ServerThread extends Thread {
 			loginStatement.setString(2, infos[2]);
 			ResultSet rs = loginStatement.executeQuery();
 			if (rs.next()) {
-				this.uid= rs.getInt(1);
+				this.uid = rs.getInt(1);
 				String nickName = "select nickname from users where uid = ?";
 				PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
 				nickNameStatement.setInt(1, this.uid);
 				rs = nickNameStatement.executeQuery();
 				rs.next();
 				this.name = rs.getString(1);
-				if(this.name==null) {
+				if (this.name == null) {
 					this.send("NickName");
-				}
-				else
+				} else {
+					this.isLoggedIn=true;
 					this.send("Login 1");
+					synchronized (this.server.getGame()) {
+						for(int i = 0;i<this.server.getGame().getPlayers().size();i++) {
+							this.send("Player "+i+" "+this.server.getGame().getPlayers().get(i).getName());
+						}
+						this.inGameId= server.getGame().getPlayers().size();
+						this.server.getGame().addPlayer(this.name);
+						this.server.sendAll("Player "+ this.inGameId +" "+this.name);
+					}
+				}
 			} else
 				this.send("Login 0");
 		}
-		//Handle SignUp message
+		// Handle SignUp message
 		else if (infos[0].equals("SignUp")) {
 			String signUpVeri = "select count(*) from users where username = ?";
 			PreparedStatement signUpVeriStatement = dbCon.prepareStatement(signUpVeri);
@@ -119,15 +133,15 @@ public class ServerThread extends Thread {
 			} else
 				this.send("SignUp 0");
 		}
-		//Handle Ready message
+		// Handle Ready message
 		else if (infos[0].equals("Ready")) {
 			if (infos[1].equals("1")) {
 				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
 					new Thread(() -> {
-						server.sendAll("PlayerCount "+server.getGame().getPlayers().size());
-		 				server.sendAll("Start");
+						server.sendAll("PlayerCount " + server.getGame().getPlayers().size());
+						server.sendAll("Start");
 						System.out.println("Game start!");
 						while (true) {
 							server.getGame().testNextRound();
@@ -136,20 +150,20 @@ public class ServerThread extends Thread {
 			}
 
 		}
-		//Handle RollDice message
+		// Handle RollDice message
 		else if (infos[0].equals("RollDice")) {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
 		}
-		//Handle NickName message
+		// Handle NickName message
 		else if (infos[0].equals("NickName")) {
 			String nickName = "select count(*) from users where nickname = ?";
 			PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
 			nickNameStatement.setString(1, infos[1]);
 			ResultSet rs = nickNameStatement.executeQuery();
 			rs.next();
-			if(rs.getInt(1)==0) {
+			if (rs.getInt(1) == 0) {
 				this.name = infos[1];
 				this.send("NickName 1");
 				String insertNickName = "update users set nickname = ? where uid = ?";
@@ -157,14 +171,14 @@ public class ServerThread extends Thread {
 				insertNickNameStatement.setString(1, infos[1]);
 				insertNickNameStatement.setInt(2, this.uid);
 				insertNickNameStatement.executeQuery();
-				
-			}
-			else {
+
+			} else {
 				this.send("NickName 0");
 			}
-			
+
 		}
 	}
+
 	/**
 	 * This method is to create a new thread to listen to the message sent by the
 	 * client
@@ -184,6 +198,7 @@ public class ServerThread extends Thread {
 			}
 		}).start();
 	}
+
 	/**
 	 * This method is to close the connection to client
 	 */
@@ -196,8 +211,10 @@ public class ServerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * This method sends messages to the server
+	 * 
 	 * @param info the message to be sent
 	 */
 	public void send(String info) {

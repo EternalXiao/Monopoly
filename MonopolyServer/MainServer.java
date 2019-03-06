@@ -88,10 +88,9 @@ public class MainServer {
 			try {
 				Socket client = server.accept();
 				System.out.println("One client connected...");
-				ServerThread ST = new ServerThread(client, dbCon,this,this.connectedClients.size());
+				ServerThread ST = new ServerThread(client, dbCon,this);
 				this.connectedClients.add(ST);
 				ST.start();
-				game.addPlayer();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -110,7 +109,8 @@ public class MainServer {
 	 */
 	public void sendAll(String info) {
 		for(ServerThread st:this.connectedClients) {
-			st.send(info);
+			if(st.getLoggedIn())
+				st.send(info);
 		}
 	}
 	/**
@@ -125,5 +125,12 @@ public class MainServer {
 				continue;
 			st.send(info);
 		}
+	}
+	public ServerThread searchThread(int id) {
+		for(ServerThread st:this.connectedClients) {
+			if(st.getInGameId()==id)
+				return st;
+		}
+		return null;
 	}
 }
