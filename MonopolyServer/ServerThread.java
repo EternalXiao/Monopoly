@@ -41,7 +41,9 @@ public class ServerThread extends Thread {
 	public void setInGameId(int inGameId) {
 		this.inGameId = inGameId;
 	}
-
+	/**
+	 * This is the override method which will be run once start method being called
+	 */
 	@Override
 	public void run() {
 		System.out.println("Connecting from : " + this.client.getInetAddress());
@@ -149,7 +151,10 @@ public class ServerThread extends Thread {
 			
 		}
 	}
-
+	/**
+	 * This method is to create a new thread to listen to the message sent by the
+	 * client
+	 */
 	public void listenClient() {
 		new Thread(() -> {
 			while (client.isConnected()) {
@@ -165,15 +170,22 @@ public class ServerThread extends Thread {
 			}
 		}).start();
 	}
-
+	/**
+	 * This method is to close the connection to client
+	 */
 	public void close() {
 		try {
+			out.close();
+			in.close();
 			client.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * This method sends messages to the server
+	 * @param info the message to be sent
+	 */
 	public void send(String info) {
 		out.println(info);
 	}

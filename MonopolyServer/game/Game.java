@@ -12,9 +12,7 @@ public class Game {
 	// temporary
 	private MainServer server;
 	private int currentPlayer;
-	// private MainPage mp;
 	Scanner in;
-	// private LinkedList<Player> alivePlayers;
 
 	public Game(MainServer server) {
 		map = new GameMap().getMap();
@@ -23,7 +21,6 @@ public class Game {
 		this.alivePlayers = this.players.size();
 		in = new Scanner(System.in);
 		this.server = server;
-		// this.mp = mp;
 	}
 
 	public int getCurrentPlayer() {

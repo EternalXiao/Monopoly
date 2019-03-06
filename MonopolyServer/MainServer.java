@@ -55,7 +55,11 @@ public class MainServer {
 		this.dbCon.close();
 		this.server.close();
 	}
-
+	/**
+	 * This method is to listen the connection of clients.Once the connection
+	 * has been built, the server will create a dedicated thread to handle this
+	 * client
+	 */
 	public void listenConnection(){
 		Scanner keyIn = new Scanner(System.in);
 		new Thread(() -> {
@@ -93,11 +97,21 @@ public class MainServer {
 		}
 		return true;
 	}
+	/**
+	 * This method takes a message and sends it to all clients 
+	 * @param info the message to be sent
+	 */
 	public void sendAll(String info) {
 		for(ServerThread st:this.connectedClients) {
 			st.send(info);
 		}
 	}
+	/**
+	 * This method takes a message and sends it to all clients except
+	 * the one specified
+	 * @param info the message to be sent
+	 * @param playerId the id of the specified client not to send
+	 */
 	public void sendAllWithout(String info,int playerId) {
 		for(ServerThread st:this.connectedClients) {
 			if(st.getInGameId()==playerId)
