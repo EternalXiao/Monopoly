@@ -3,28 +3,36 @@ package MonopolyServer.game;
 import java.util.*;
 
 import MonopolyServer.MainServer;
-import javafx.application.Platform;
+import MonopolyServer.ServerThread;
 
 public class Game {
 	private Block[] map;
 	private LinkedList<Player> players;
+	private int countRound;
+	private int jailRound;
+	private boolean isEnd;
 	private int alivePlayers;
 	// temporary
 	private MainServer server;
 	private int currentPlayer;
-	Scanner in;
 
 	public Game(MainServer server) {
-		map = new GameMap().getMap();
-		players = new LinkedList<>();
+		this.map = new GameMap().getMap();
+		this.players = new LinkedList<>();
 		this.currentPlayer = 0;
-		this.alivePlayers = this.players.size();
-		in = new Scanner(System.in);
 		this.server = server;
 	}
 
 	public int getCurrentPlayer() {
 		return currentPlayer;
+	}
+
+	public int getCountRound() {
+		return this.countRound;
+	}
+
+	public boolean getIsEnd() {
+		return this.isEnd;
 	}
 
 	public Block[] getMap() {
@@ -35,6 +43,14 @@ public class Game {
 		this.map = map;
 	}
 
+	public int getAlivePlayers() {
+		return this.alivePlayers;
+	}
+
+	public void setAlivePlayers(int alivePlayers) {
+		this.alivePlayers = alivePlayers;
+	}
+
 	public LinkedList<Player> getPlayers() {
 		return players;
 	}
@@ -43,19 +59,143 @@ public class Game {
 		this.players = players;
 	}
 
-	public int getAlivePlayers() {
-		return alivePlayers;
-	}
-
-	public void setAlivePlayers(int alivePlayers) {
-		this.alivePlayers = alivePlayers;
-	}
-
 	public void addPlayer(String name) {
-		this.players.add(new Player(this.players.size(),name));
+		this.players.add(new Player(this.players.size(), name));
 	}
 
-	// temporary
+	public void action(Player player, Block block, int diceNum,ServerThread currentPlayerThread) {
+		switch (map[player.getCurrentPosition()].getType()) {
+		case Street: {
+			Street street = (Street) block;
+			if (!street.isOwned()) {
+				System.out.println("Do you want to buy " + street.getName() + " ?");
+				currentPlayerThread.send("Buy");
+				this.waitDecision();
+			} else if(!player.getOwnedProperties().contains(street)){
+				player.pay(street.getOwner(), street.getStreetRent());
+				server.sendAll("Update Money "+ player.getInGameId()+" "+player.getMoney());
+				server.sendAll("Update Money" + street.getOwner().getInGameId()+" "+street.getOwner().getMoney());
+			}
+			break;
+		}
+		case Railroad: {
+			Railroad railroad = (Railroad) block;
+			if (!railroad.isOwned()) {
+				System.out.println("Do you want to buy " + railroad.getName() + "?");
+				if (player.getDecision().equalsIgnoreCase("YES")) {
+					player.buy(railroad);
+				} else {
+					break;
+				}
+			} else {
+				if (player.getOwnedProperties().contains(railroad)) {
+					break;
+				} else {
+					player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
+				}
+			}
+			break;
+		}
+		case Utility: {
+			Utility utility = (Utility) block;
+			if (!utility.isOwned()) {
+				System.out.println("Do you want to buy " + utility.getName() + "?");
+				if (player.getDecision().equalsIgnoreCase("YES")) {
+					player.buy(utility);
+				} else {
+					break;
+				}
+			} else {
+				if (player.getOwnedProperties().contains(utility)) {
+					break;
+				} else {
+					player.pay(utility.getOwner(),
+							utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
+				}
+			}
+			break;
+		}
+		case Chance: { // might have problem;
+			Chance chance = (Chance) block;
+			chance.getAction(player);
+			action(player, map[player.getCurrentPosition()], diceNum,currentPlayerThread);
+			break;
+		}
+		case CommunityChest: {
+			CommunityChest communityChest = (CommunityChest) block;
+			player.setMoney(player.getMoney() + communityChest.getPrice());
+			break;
+		}
+		case Tax: {
+			Tax tax = (Tax) block;
+			player.payMoney(tax.getTax());
+			break;
+		}
+		case GoToJail: {
+			player.setInJail(true);
+		}
+		default:
+			break;
+		}
+	}
+
+	public void nextRound() {
+		Player player = this.getPlayers().get(currentPlayer);
+		int dice1, dice2, diceNum;
+
+		if (this.getAlivePlayers() >= 2 && countRound <= 100) {
+			this.countRound++;
+		} else {
+			this.isEnd = true;
+			System.out.println("Game Over");
+			return;
+		}
+
+		if (player.isAlive()) {
+			if (player.isInJail()) {
+				player.setInJail(false);
+				System.out.println("You are in jail, skip a round.");
+				this.currentPlayer++;
+				return;
+			} else {
+				System.out.println("Player " + player.getInGameId() + "'s turn");
+				ServerThread currentPlayerThread = server.searchThread(this.currentPlayer);
+				currentPlayerThread.send("YourTurn");
+				currentPlayerThread.send("RollDice");
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				dice1 = Dice.getDiceNum();
+				dice2 = Dice.getDiceNum();
+				diceNum = dice1 + dice2;
+				server.sendAll("Update Dice " + dice1 + " " + dice2);
+				System.out.println(player.getInGameId() + " roll out " + diceNum);
+				boolean passGo = false;
+				if ((player.getCurrentPosition() + diceNum) / 40 == 1) {
+					passGo = true;
+				}
+				player.setCurrentPosition((player.getCurrentPosition() + diceNum) % 40);
+				server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
+				
+				if (passGo) {
+					System.out.println(player.getInGameId()+" got 200 pound.");
+					player.setMoney(player.getMoney() + 200);
+					server.sendAll("Update Money "+this.currentPlayer+" "+player.getMoney());
+				}
+				Block block = map[player.getCurrentPosition()];
+				System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
+				action(player, block, diceNum,currentPlayerThread);
+
+				if (player.getMoney() < 0) {
+					player.setAlive(false);
+					this.alivePlayers--;
+				}
+			}
+		}
+	}
+
 	public synchronized void testNextRound() {
 		Player player = this.getPlayers().get(currentPlayer);
 		if (player.isAlive()) {
@@ -68,11 +208,10 @@ public class Game {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			dice1 = Dice.rollDice();
-			dice2 = Dice.rollDice();
-			server.sendAll("Update Dice "+dice1+" "+dice2);
-			System.out.println("You roll out "+dice1 +" and "+dice2);
-			player.setPreviousPosition(player.getCurrentPosition());
+			dice1 = Dice.getDiceNum();
+			dice2 = Dice.getDiceNum();
+			server.sendAll("Update Dice " + dice1 + " " + dice2);
+			System.out.println(player.getInGameId() + " roll out " + dice1 + " and " + dice2);
 			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
 			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
 			Block block = map[player.getCurrentPosition()];
@@ -80,187 +219,12 @@ public class Game {
 		}
 		this.currentPlayer = (this.currentPlayer + 1) % this.getPlayers().size();
 	}
-
-	public void nextRound() {
-
-		Player player = this.getPlayers().get(currentPlayer);
-		if (player.isAlive()) {
-			System.out.println("Player " + player.getInGameId() + "'s turn");
-			System.out.println("Enter any character to roll dice");
-			int dice1, dice2;
-			server.getConnectedClients().get(this.currentPlayer).send("RollDice");
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			dice1 = Dice.rollDice();
-			dice2 = Dice.rollDice();
-			// server.sendAll("Dice "+dice1+" "+dice2);
-			// System.out.println("You roll out "+dice1 +" and "+dice2);
-			player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
-			server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
-			// Platform.runLater(()->mp.update());
-			Block block = map[player.getCurrentPosition()];
-			System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
-			switch (map[block.getPosition()].getType()) {
-			case Street:
-				Street street = (Street) block;
-				if (!street.isOwned()) {
-					System.out.println("Enter y to buy, else n (Price " + street.getPrice() + ")");
-					String decision = in.nextLine().trim();
-					if (decision.equalsIgnoreCase("y")) {
-						if (!player.buy(street)) {
-							System.out.println("Not enough money");
-						}
-					}
-				} else {
-					// money not enough
-					player.pay(street.getOwner(), street.getInitialRent());
-				}
-				break;
-			case Railroad:
-				Railroad railroad = (Railroad) block;
-				if (railroad.isOwned()) {
-					player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
-				} else {
-					System.out.println("Enter y to buy, else n (Price " + railroad.getPrice() + ")");
-					String decision = in.nextLine().trim();
-					if (decision.equalsIgnoreCase("y")) {
-						if (!player.buy(railroad)) {
-							System.out.println("Not enough money");
-						}
-					}
-				}
-				break;
-			case Utility:
-				Utility utility = (Utility) block;
-				if (utility.isOwned()) {
-					player.pay(utility.getOwner(),
-							utility.getTotalRent(utility.getOwner().getOwnedRailroads(), dice1 + dice2));
-				} else {
-					System.out.println("Enter y to buy, else n (Price " + utility.getPrice() + ")");
-					String decision = in.nextLine().trim();
-					if (decision.equalsIgnoreCase("y")) {
-						if (!player.buy(utility)) {
-							System.out.println("Not enough money");
-						}
-					}
-				}
-				break;
-			case Tax:
-				player.payMoney(((Tax) block).getTax());
-				break;
-			case Chance:
-				player.receiveMoney(((Chance) block).getChance());
-				System.out.println("You got 200");
-				break;
-			case Go:
-				// only step on
-				player.receiveMoney(200);
-				System.out.println("You got 200 by passing Go");
-				break;
-			case GoToJail:
-				player.setCurrentPosition(10);
-				player.setInJail(true);
-				break;
-			default:
-				break;
-			}
-		}
-		this.currentPlayer = (this.currentPlayer + 1) % this.getPlayers().size();
-	}
-
-	public void start() {
-
-		while (true) {
-			for (Player player : players) {
-				if (player.isAlive()) {
-					System.out.println("Player " + player.getInGameId() + "' turn");
-					System.out.println("Enter any character to roll dice");
-					int dice1, dice2;
-					in.nextLine();
-					dice1 = Dice.rollDice();
-					dice2 = Dice.rollDice();
-					System.out.println("You roll out " + dice1 + " and " + dice2);
-					player.setCurrentPosition((player.getCurrentPosition() + dice1 + dice2) % 40);
-					Block block = map[player.getCurrentPosition()];
-					System.out.println("You have reached " + map[block.getPosition()].getName());
-					switch (map[block.getPosition()].getType()) {
-					case Street:
-						Street street = (Street) block;
-						if (!street.isOwned()) {
-							System.out.println("Enter y to buy, else n (Price " + street.getPrice() + ")");
-							String decision = in.nextLine().trim();
-							if (decision.equalsIgnoreCase("y")) {
-								if (!player.buy(street)) {
-									System.out.println("Not enough money");
-								}
-							}
-						} else {
-							// money not enough
-							player.pay(street.getOwner(), street.getInitialRent());
-						}
-						break;
-					case Railroad:
-						Railroad railroad = (Railroad) block;
-						if (railroad.isOwned()) {
-							player.pay(railroad.getOwner(),
-									railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
-						} else {
-							System.out.println("Enter y to buy, else n (Price " + railroad.getPrice() + ")");
-							String decision = in.nextLine().trim();
-							if (decision.equalsIgnoreCase("y")) {
-								if (!player.buy(railroad)) {
-									System.out.println("Not enough money");
-								}
-							}
-						}
-						break;
-					case Utility:
-						Utility utility = (Utility) block;
-						if (utility.isOwned()) {
-							player.pay(utility.getOwner(),
-									utility.getTotalRent(utility.getOwner().getOwnedRailroads(), dice1 + dice2));
-						} else {
-							System.out.println("Enter y to buy, else n (Price " + utility.getPrice() + ")");
-							String decision = in.nextLine().trim();
-							if (decision.equalsIgnoreCase("y")) {
-								if (!player.buy(utility)) {
-									System.out.println("Not enough money");
-								}
-							}
-						}
-						break;
-					case Tax:
-						player.payMoney(((Tax) block).getTax());
-						break;
-					case Chance:
-						player.receiveMoney(((Chance) block).getChance());
-						System.out.println("You got 200");
-						break;
-					case Go:
-						// only step on
-						player.receiveMoney(200);
-						System.out.println("You got 200 by passing Go");
-						break;
-					case GoToJail:
-						player.setCurrentPosition(10);
-						player.setInJail(true);
-						break;
-					default:
-						break;
-					}
-				}
-			}
+	public synchronized void waitDecision() {
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
-	public static void main(String... args) {
-		// Game game = new Game();
-		// game.start();
-		while (true) {
-			// game.nextRound();
-		}
-	}
 }

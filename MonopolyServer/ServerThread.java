@@ -6,8 +6,9 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Scanner;
+
+import MonopolyServer.game.*;
 
 public class ServerThread extends Thread {
 	private Socket client;
@@ -20,6 +21,7 @@ public class ServerThread extends Thread {
 	private String name;
 	private int uid;
 	private boolean isLoggedIn;
+	private Player player;
 
 	public ServerThread(Socket client, Connection dbCon, MainServer server) {
 		this.client = client;
@@ -78,6 +80,8 @@ public class ServerThread extends Thread {
 	 * v.NickName The NickName message contains one bit of content. This bit is the
 	 * nickname the clinet want to use
 	 * 
+	 * vi.Buy
+	 * 
 	 * @param info
 	 * @throws Exception
 	 */
@@ -110,6 +114,7 @@ public class ServerThread extends Thread {
 						this.inGameId= server.getGame().getPlayers().size();
 						this.server.getGame().addPlayer(this.name);
 						this.server.sendAll("Player "+ this.inGameId +" "+this.name);
+						this.player = this.server.getGame().getPlayers().get(this.inGameId);
 					}
 				}
 			} else
@@ -139,14 +144,7 @@ public class ServerThread extends Thread {
 				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
-					new Thread(() -> {
-						server.sendAll("PlayerCount " + server.getGame().getPlayers().size());
-						server.sendAll("Start");
-						System.out.println("Game start!");
-						while (true) {
-							server.getGame().testNextRound();
-						}
-					}).start();
+					server.gameStart();
 			}
 
 		}
@@ -176,6 +174,16 @@ public class ServerThread extends Thread {
 				this.send("NickName 0");
 			}
 
+		}
+		//might have bugs
+		else if(infos[0].equals("Buy")) {
+			if(infos[1].equals("1")) {
+				player.buy((Property)server.getGame().getMap()[player.getCurrentPosition()]);
+			}
+			synchronized(server.getGame()) {
+				server.getGame().notify();
+			}
+				
 		}
 	}
 

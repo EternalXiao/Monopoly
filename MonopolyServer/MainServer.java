@@ -133,4 +133,15 @@ public class MainServer {
 		}
 		return null;
 	}
+	public void gameStart() {
+		new Thread(() -> {
+			sendAll("Start");
+			System.out.println("Game start!");
+			this.game.setAlivePlayers(this.game.getPlayers().size());
+			while (!this.game.getIsEnd()) {
+				this.game.nextRound();
+			}
+			sendAll("GameOver");
+		}).start();
+	}
 }

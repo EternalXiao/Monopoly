@@ -7,7 +7,8 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import javafx.application.Platform;
-import MonopolyServer.game.*;
+import MonopolyClient.game.*;
+import gui.*;
 
 public class MainClient {
 	private Socket client;
@@ -15,9 +16,8 @@ public class MainClient {
 	private int port;
 	private PrintStream out;
 	private Scanner in;
-	private ClientGUI gui;
+	private ClientStage gui;
 	// temporary
-	private Scanner keyIn;
 	private Block[] map;
 	private LinkedList<Player> players;
 
@@ -26,7 +26,6 @@ public class MainClient {
 		this.port = port;
 		this.connect();
 		// temp
-		this.keyIn = new Scanner(System.in);
 		this.players = new LinkedList<>();
 	}
 
@@ -34,7 +33,7 @@ public class MainClient {
 
 	}
 
-	public void setGUI(ClientGUI gui) {
+	public void setGUI(ClientStage gui) {
 		this.gui = gui;
 	}
 
@@ -77,11 +76,19 @@ public class MainClient {
 	public LinkedList<Player> getPlayers() {
 		return this.players;
 	}
-
+	/**
+	 * This method sends login message,including username and password to the server
+	 * @param username the username provided
+	 * @param password the password provided
+	 */
 	public void login(String username, String password) {
 		this.send("Login " + username + " " + password);
 	}
-
+	/**
+	 * This method sends sign up message, including username, password and nickname to the server
+	 * @param username the username provided
+	 * @param password the password provided
+	 */
 	public void signUp(String username, String password) {
 		this.send("SignUp " + username + " " + password);
 	}
@@ -129,7 +136,9 @@ public class MainClient {
 	 * v.YourTurn The YourTurn message does not have content. It is just a
 	 * notification from server to enable action
 	 * 
-	 * vi.Update The Update message is the most complicated one. The first bit in
+	 * vi.Buy 
+	 * 
+	 * vii.Update The Update message is the most complicated one. The first bit in
 	 * the content represents the type of data need to update. There are generally n
 	 * types of data: 1.Position 2.Money 3.BlockOwner 4.BlockLevel 5.OwnedProperty
 	 * 6.Alive 7.InJail 8.Dice 9.NickName
@@ -141,7 +150,7 @@ public class MainClient {
 		// Handle Login message
 		if (infos[0].equals("Login")) {
 			if (infos[1].equals("1"))
-				Platform.runLater(() -> gui.mainPage());
+				Platform.runLater(() -> gui.setGameDeskPage());
 			else
 				Platform.runLater(() -> gui.loginFailed());
 		}
@@ -160,20 +169,27 @@ public class MainClient {
 		else if (infos[0].equals("Start")) {
 			this.map = new GameMap().getMap();
 			Platform.runLater(() -> {
-				gui.loadChess();
-				gui.initialisePlayer();
+				MainGameDesk.loadChess();
+				MainGameDesk.initialisePlayer();
+				MainGameDesk.getReadyButton().setDisable(true);
 			});
 
 		}
 		// Handle RollDice message
 		else if (infos[0].equals("RollDice")) {
 			Platform.runLater(() -> {
-				gui.getRollButton().setDisable(false);
+				MainGameDesk.getRollButton().setDisable(false);
 			});
 		}
 		//Handle YourTurn message
 		else if (infos[0].equals("YourTurn")) {
-
+			Platform.runLater(() -> {
+				MainGameDesk.getRollButton().setDisable(false);
+			});
+		}
+		//Handle Buy message
+		else if(infos[0].equals("Buy")){
+			//buy button
 		}
 		//Handle Update message
 		else if (infos[0].equals("Update")) {
@@ -181,41 +197,38 @@ public class MainClient {
 				this.players.get(Integer.parseInt(infos[2]))
 						.setPreviousPosition(this.players.get(Integer.parseInt(infos[2])).getCurrentPosition());
 				this.players.get(Integer.parseInt(infos[2])).setCurrentPosition(Integer.parseInt(infos[3]));
-				gui.updatePlayer(Integer.parseInt(infos[2]));
+				MainGameDesk.updatePlayer(Integer.parseInt(infos[2]));
 
 			} else if (infos[1].equals("Money")) {
 				this.players.get(Integer.parseInt(infos[2])).setMoney(Integer.parseInt(infos[3]));
-				//money update
+				//gui update
 			} else if (infos[1].equals("BlockOwner")) {
 				((Property)this.map[Integer.parseInt(infos[2])]).setOwner(this.players.get(Integer.parseInt(infos[3])));
-				//owner update
+				//gui update
 			} else if (infos[1].equals("BlockLevel")) {
 				((Street)this.map[Integer.parseInt(infos[2])]).setLevel(Integer.parseInt(infos[3]));
-				//level update
+				//gui update
 			} else if (infos[1].equals("OwnedProperty")) {
 
 			} else if (infos[1].equals("Alive")) {
 				this.players.get(Integer.parseInt(infos[2])).setAlive(false);
-				//alive update
+				//update alive
 			} else if (infos[1].equals("InJail")) {
 
 			} else if (infos[1].equals("Dice")) {
 				Platform.runLater(() -> {
-					gui.toggleDice(gui.getDiceLeft(), Integer.parseInt(infos[2]));
-					gui.toggleDice(gui.getDiceRight(), Integer.parseInt(infos[3]));
+					MainGameDesk.setDiceValue(Integer.parseInt(infos[2]), Integer.parseInt(infos[3]));
 				});
 
 			}
-		}
-		//Handle NickName message
-		else if (infos[0].equals("NickName")) {
+		} else if (infos[0].equals("NickName")) {
 			if (infos.length == 1) {
 				Platform.runLater(() -> {
 					gui.nickName();
 				});
 			} else if (infos[1].equals("1")) {
 				Platform.runLater(() -> {
-					gui.mainPage();
+					gui.setGameDeskPage();
 				});
 			} else {
 				Platform.runLater(() -> {
@@ -229,14 +242,14 @@ public class MainClient {
 		}
 	}
 	/**
-	 * This method send messages to the server
-	 * @param info the messgae to be sent
+	 * This method is to send message to the server
+	 * @param info the message to be sent
 	 */
 	public void send(String info) {
 		out.println(info);
 	}
 	/**
-	 * This method will close the conncetion to server
+	 * This method is to close the connection to the server and io stream
 	 */
 	public void close() {
 		try {
