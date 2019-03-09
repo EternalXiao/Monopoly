@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import javafx.application.Platform;
+import javafx.scene.text.Font;
 import MonopolyClient.game.*;
 import gui.*;
 
@@ -239,6 +240,20 @@ public class MainClient {
 		//Handle Player message
 		else if (infos[0].equals("Player")) {
 			this.players.add(new Player(Integer.parseInt(infos[1]),infos[2]));
+		}
+		//Handle system prompt
+		else if (infos[0].equals("System")) {
+		}
+		else if (infos[0].equals("PlayerChat")){
+			System.out.println("Client received");
+			String tempStr = info.replaceFirst("PlayerChat","");
+			MainGameDesk.getInformationList().appendText(tempStr);
+		}
+
+		else if (infos[0].equals("SystemCall")){
+			MainGameDesk.getSystemCall().setFont(Font.font("roman",20));
+			MainGameDesk.getSystemCall().setText(info);
+
 		}
 	}
 	/**

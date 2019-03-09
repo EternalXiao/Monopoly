@@ -4,20 +4,31 @@ import MonopolyClient.MainClient;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 public class MainGameDesk {
-
+    /**
+     * Test only
+     */
+    static final int[] money = {9090,12312,435345,56456,123,45645};
+    static final String[] name = {"Saber","Rumble","Zed","Jason","Java","Cancer"};
 	/**
 	 * 棋盘从开始位置到结束位置坐标 x 和 y
 	 */
@@ -29,6 +40,8 @@ public class MainGameDesk {
 	/**
 	 * 棋子位置
 	 */
+	public static final int[] informationY = {0,0,1,1,2,2};
+    public static final int[] informationX = {0,1,0,1,0,1};
 	public static final int[] chessXAxis = { 0, 1 };
 	public static final int[] chessYAxis = { 0, 0 };
 
@@ -88,7 +101,8 @@ public class MainGameDesk {
 	 * 用于存放默认骰子的照片
 	 */
 	private static final ImagePattern diceDefault = new ImagePattern(new Image("file:src/image/default.jpg"));
-	private static final String[] chessName = { "towerBlack", "queenWhite" };
+	private static final String[] chessName = { "piece1", "piece2","piece3",
+            "piece4","piece5","piece6"};
 
 	/**
 	 * 设置骰子的值
@@ -101,10 +115,9 @@ public class MainGameDesk {
 		
 	}
 
-	/**
-	 * 默认载入一个为null的client
-	 */
-	private static MainClient client = null;
+	private static TextArea informationList;
+    private static Label systemCall;
+    private static MainClient client = null;
 	Scene scene;
 	/**
 	 * 底部按钮区
@@ -133,8 +146,10 @@ public class MainGameDesk {
 
 		borderPane.setCenter(root);
 		borderPane.setBottom(bottomGameDesk);
+		displayPlayersInformation(borderPane);
+        displaySystemInformation(borderPane);
 
-		scene = new Scene(borderPane, 800, 1000);
+		scene = new Scene(borderPane, 1400, 1000);
 	}
 
 	/**
@@ -222,7 +237,78 @@ public class MainGameDesk {
 		for (int i = 0; i < 40; i++)
 			drawSingleCell(root, i);
 	}
+	/**
+     * 制作单个玩家信息表
+     * @param gridPane
+     * @param number
+     */
+    public static void drawSinglePlayerInformation(GridPane gridPane,int number){
+        HBox hBox = new HBox(10);
+        VBox vBox = new VBox(10);
 
+        Image tempImage = (new Image("file:src/image/" + chessName[number] + ".png"));
+        Circle cir = new Circle(20);
+        cir.setFill(new ImagePattern(tempImage));
+//        Text nickName = new Text(client.getPlayers().get(number).getName());
+//        Text currentMoney = new Text("£" + client.getPlayers().get(number).getMoney());
+        Text nickName = new Text(name[number]);
+        Text currentMoney = new Text("£ " + money[number]);
+
+        vBox.getChildren().addAll(nickName,currentMoney);
+        hBox.getChildren().addAll(cir,vBox);
+
+        hBox.setPadding(new Insets(5,5,5,5));
+        hBox.setPrefSize(150,225);
+        gridPane.add(hBox,informationX[number],informationY[number]);
+    }
+    /**
+     * 制作玩家信息表
+     */
+    public static void displayPlayersInformation(BorderPane borderPane){
+        /**
+         * 使用GridPane存储显示玩家信息
+         */
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(5);
+        gridPane.setHgap(5);
+        gridPane.setPadding(new Insets(10,10,10,10));
+        gridPane.setPrefWidth(300);
+        gridPane.setPrefHeight(900);
+
+        for (int i = 0; i<6; i++){
+            drawSinglePlayerInformation(gridPane,i);
+        }
+        gridPane.setGridLinesVisible(true);
+        borderPane.setLeft(gridPane);
+    }
+
+    /**
+     * 制作系统信息提示栏
+     */
+    public static void displaySystemInformation(BorderPane borderPane){
+        Label title = new Label("ChatBox");
+        systemCall = new Label();
+        informationList = new TextArea();
+        TextField outputField = new TextField();
+        VBox chatBox = new VBox(10);
+
+        informationList.setPrefHeight(600);
+        outputField.setPrefHeight(50);
+
+        outputField.setOnAction(e ->{
+            StringBuffer data= new StringBuffer();
+            data.append("PlayerChat " + client.getClient().getInetAddress().getHostAddress() + ": ");
+            data.append(outputField.getText());
+            client.send(data.toString());
+            System.out.println(data);
+            outputField.clear();
+        });
+
+        chatBox.setPrefSize(300,1000);
+        chatBox.getChildren().addAll(title,informationList,outputField,systemCall);
+
+        borderPane.setRight(chatBox);
+    }
 	/**
 	 * 制作棋子摆放的位置
 	 * 
@@ -238,9 +324,9 @@ public class MainGameDesk {
 
 	public static void loadChess() {
 		for (int i = 0; i < client.getPlayers().size(); i++) {
-			playerChess[i] = new ImageView(new Image("file:src/image/" + chessName[i] + ".gif"));
-			playerChess[i].setFitHeight(20);
-			playerChess[i].setFitWidth(20);
+			playerChess[i] = new ImageView(new Image("file:src/image/" + chessName[i] + ".png"));
+			playerChess[i].setFitHeight(30);
+			playerChess[i].setFitWidth(30);
 		}
 	}
 
@@ -289,5 +375,11 @@ public class MainGameDesk {
 	public static Button getSellButton() {
 		return sellButton;
 	}
+	public static TextArea getInformationList(){
+        return informationList;
+    }
 
+    public static Label getSystemCall(){
+        return  systemCall;
+    }
 }

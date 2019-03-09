@@ -185,6 +185,10 @@ public class ServerThread extends Thread {
 			}
 				
 		}
+		else if (infos[0].equals("PlayerChat")){
+			System.out.println(info);
+			server.sendAll(info);
+		}
 	}
 
 	/**

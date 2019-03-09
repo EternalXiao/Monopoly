@@ -139,9 +139,18 @@ public class MainServer {
 			System.out.println("Game start!");
 			this.game.setAlivePlayers(this.game.getPlayers().size());
 			while (!this.game.getIsEnd()) {
-				this.game.nextRound();
+				this.game.testNextRound();
 			}
 			sendAll("GameOver");
 		}).start();
+	}
+	public void sendUpdateMoney(int playerId,int money) {
+		this.sendAll("Update Money "+playerId + " "+money);
+	}
+	public void sendUpdatePosition(int playerId,int position) {
+		this.sendAll("Update Money "+playerId+ " "+position);
+	}
+	public void sendUpdateAlive(int playerId,int alive) {
+		this.sendAll("Update Alive "+playerId+" "+alive);
 	}
 }

@@ -63,7 +63,7 @@ public class Game {
 		this.players.add(new Player(this.players.size(), name));
 	}
 
-	public void action(Player player, Block block, int diceNum,ServerThread currentPlayerThread) {
+	public void action(Player player, Block block, int diceNum, ServerThread currentPlayerThread) {
 		switch (map[player.getCurrentPosition()].getType()) {
 		case Street: {
 			Street street = (Street) block;
@@ -71,10 +71,10 @@ public class Game {
 				System.out.println("Do you want to buy " + street.getName() + " ?");
 				currentPlayerThread.send("Buy");
 				this.waitDecision();
-			} else if(!player.getOwnedProperties().contains(street)){
+			} else if (!player.getOwnedProperties().contains(street)) {
 				player.pay(street.getOwner(), street.getStreetRent());
-				server.sendAll("Update Money "+ player.getInGameId()+" "+player.getMoney());
-				server.sendAll("Update Money" + street.getOwner().getInGameId()+" "+street.getOwner().getMoney());
+				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
+				server.sendUpdateMoney(street.getOwner().getInGameId(), street.getOwner().getMoney());
 			}
 			break;
 		}
@@ -82,17 +82,12 @@ public class Game {
 			Railroad railroad = (Railroad) block;
 			if (!railroad.isOwned()) {
 				System.out.println("Do you want to buy " + railroad.getName() + "?");
-				if (player.getDecision().equalsIgnoreCase("YES")) {
-					player.buy(railroad);
-				} else {
-					break;
-				}
-			} else {
-				if (player.getOwnedProperties().contains(railroad)) {
-					break;
-				} else {
-					player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
-				}
+				currentPlayerThread.send("Buy");
+				this.waitDecision();
+			} else if (!player.getOwnedProperties().contains(railroad)) {
+				player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
+				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
+				server.sendUpdateMoney(railroad.getOwner().getInGameId(), railroad.getOwner().getMoney());
 			}
 			break;
 		}
@@ -100,38 +95,38 @@ public class Game {
 			Utility utility = (Utility) block;
 			if (!utility.isOwned()) {
 				System.out.println("Do you want to buy " + utility.getName() + "?");
-				if (player.getDecision().equalsIgnoreCase("YES")) {
-					player.buy(utility);
-				} else {
-					break;
-				}
-			} else {
-				if (player.getOwnedProperties().contains(utility)) {
-					break;
-				} else {
-					player.pay(utility.getOwner(),
-							utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
-				}
+				currentPlayerThread.send("Buy");
+			} else if (!player.getOwnedProperties().contains(utility)) {
+				player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
+				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
+				server.sendUpdateMoney(utility.getOwner().getInGameId(), utility.getOwner().getMoney());
 			}
 			break;
 		}
 		case Chance: { // might have problem;
 			Chance chance = (Chance) block;
-			chance.getAction(player);
-			action(player, map[player.getCurrentPosition()], diceNum,currentPlayerThread);
+			chance.getAction(player,server);
+			server.sendUpdatePosition(player.getInGameId(), player.getCurrentPosition());
+			action(player, map[player.getCurrentPosition()], diceNum, currentPlayerThread);
 			break;
 		}
 		case CommunityChest: {
 			CommunityChest communityChest = (CommunityChest) block;
-			player.setMoney(player.getMoney() + communityChest.getPrice());
+			int money = communityChest.getPrice();
+			server.sendAll("System "+player.getInGameId() + " got "+money +"£");
+			player.receiveMoney(money);
+			server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 			break;
 		}
 		case Tax: {
 			Tax tax = (Tax) block;
 			player.payMoney(tax.getTax());
+			server.sendAll("System "+player.getInGameId()+ " paid "+tax.getTax()+"£");
+			server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 			break;
 		}
 		case GoToJail: {
+			server.sendAll("System "+player.getInGameId()+" is sent to jail (Skip a round)");
 			player.setInJail(true);
 		}
 		default:
@@ -162,11 +157,7 @@ public class Game {
 				ServerThread currentPlayerThread = server.searchThread(this.currentPlayer);
 				currentPlayerThread.send("YourTurn");
 				currentPlayerThread.send("RollDice");
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				this.waitDecision();
 				dice1 = Dice.getDiceNum();
 				dice2 = Dice.getDiceNum();
 				diceNum = dice1 + dice2;
@@ -178,18 +169,19 @@ public class Game {
 				}
 				player.setCurrentPosition((player.getCurrentPosition() + diceNum) % 40);
 				server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
-				
+
 				if (passGo) {
-					System.out.println(player.getInGameId()+" got 200 pound.");
+					System.out.println(player.getInGameId() + " got 200 pound.");
 					player.setMoney(player.getMoney() + 200);
-					server.sendAll("Update Money "+this.currentPlayer+" "+player.getMoney());
+					server.sendAll("Update Money " + this.currentPlayer + " " + player.getMoney());
 				}
 				Block block = map[player.getCurrentPosition()];
 				System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
-				action(player, block, diceNum,currentPlayerThread);
-
+				action(player, block, diceNum, currentPlayerThread);
+				this.waitDecision();
 				if (player.getMoney() < 0) {
 					player.setAlive(false);
+					server.sendUpdateAlive(player.getInGameId(), 0);
 					this.alivePlayers--;
 				}
 			}
@@ -219,6 +211,7 @@ public class Game {
 		}
 		this.currentPlayer = (this.currentPlayer + 1) % this.getPlayers().size();
 	}
+
 	public synchronized void waitDecision() {
 		try {
 			wait();
