@@ -164,7 +164,13 @@ public class MainClient {
 		}
 		// Handle Ready message
 		else if (infos[0].equals("Ready")) {
-
+			if(infos[2].equals("1"))
+				this.players.get(Integer.parseInt(infos[1])).setIsReady(true);
+			else
+				this.players.get(Integer.parseInt(infos[1])).setIsReady(false);
+			Platform.runLater(()->{
+				MainGameDesk.displayPlayersInformation();
+			});
 		}
 		//Handle Start message
 		else if (infos[0].equals("Start")) {
@@ -190,6 +196,7 @@ public class MainClient {
 		}
 		//Handle Buy message
 		else if(infos[0].equals("Buy")){
+			MainGameDesk.getBuyButton().setDisable(false);
 			//buy button
 		}
 		//Handle Update message
@@ -202,6 +209,9 @@ public class MainClient {
 
 			} else if (infos[1].equals("Money")) {
 				this.players.get(Integer.parseInt(infos[2])).setMoney(Integer.parseInt(infos[3]));
+				Platform.runLater(()->{
+					MainGameDesk.displayPlayersInformation();
+				});
 				//gui update
 			} else if (infos[1].equals("BlockOwner")) {
 				((Property)this.map[Integer.parseInt(infos[2])]).setOwner(this.players.get(Integer.parseInt(infos[3])));
@@ -213,6 +223,9 @@ public class MainClient {
 
 			} else if (infos[1].equals("Alive")) {
 				this.players.get(Integer.parseInt(infos[2])).setAlive(false);
+				Platform.runLater(()->{
+					MainGameDesk.displayPlayersInformation();
+				});
 				//update alive
 			} else if (infos[1].equals("InJail")) {
 
@@ -240,20 +253,29 @@ public class MainClient {
 		//Handle Player message
 		else if (infos[0].equals("Player")) {
 			this.players.add(new Player(Integer.parseInt(infos[1]),infos[2]));
+			Platform.runLater(()->{
+				MainGameDesk.displayPlayersInformation();
+			});
+			
 		}
 		//Handle system prompt
 		else if (infos[0].equals("System")) {
 		}
-		else if (infos[0].equals("PlayerChat")){
-			System.out.println("Client received");
-			String tempStr = info.replaceFirst("PlayerChat","");
-			MainGameDesk.getInformationList().appendText(tempStr);
+		else if (infos[0].equals("ChatMessage")){
+			String tempStr = info.substring(11);
+			MainGameDesk.getInformationList().appendText(tempStr+"\n");
 		}
 
-		else if (infos[0].equals("SystemCall")){
-			MainGameDesk.getSystemCall().setFont(Font.font("roman",20));
-			MainGameDesk.getSystemCall().setText(info);
-
+		else if (infos[0].equals("SystemMessage")){
+			Platform.runLater(()->{
+				MainGameDesk.getSystemMessage().setFont(Font.font("roman",20));
+			MainGameDesk.getSystemMessage().setText(info.substring(13));
+			});
+		}
+		else if(infos[0].equals("FreeAction")) {
+			Platform.runLater(()->{
+				MainGameDesk.getEndButton().setDisable(false);
+			});
 		}
 	}
 	/**

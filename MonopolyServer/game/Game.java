@@ -68,10 +68,12 @@ public class Game {
 		case Street: {
 			Street street = (Street) block;
 			if (!street.isOwned()) {
+				currentPlayerThread.send("SystemMessage Do you want to buy " + street.getName() + " ?");
 				System.out.println("Do you want to buy " + street.getName() + " ?");
 				currentPlayerThread.send("Buy");
 				this.waitDecision();
 			} else if (!player.getOwnedProperties().contains(street)) {
+				server.sendSystemPay(player.getName(), street.getOwner().getName(), street.getStreetRent());
 				player.pay(street.getOwner(), street.getStreetRent());
 				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 				server.sendUpdateMoney(street.getOwner().getInGameId(), street.getOwner().getMoney());
@@ -81,10 +83,12 @@ public class Game {
 		case Railroad: {
 			Railroad railroad = (Railroad) block;
 			if (!railroad.isOwned()) {
+				currentPlayerThread.send("SystemMessage Do you want to buy " + railroad.getName() + " ?");
 				System.out.println("Do you want to buy " + railroad.getName() + "?");
 				currentPlayerThread.send("Buy");
 				this.waitDecision();
 			} else if (!player.getOwnedProperties().contains(railroad)) {
+				server.sendSystemPay(player.getName(), railroad.getOwner().getName(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
 				player.pay(railroad.getOwner(), railroad.getTotalRent(railroad.getOwner().getOwnedRailroads()));
 				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 				server.sendUpdateMoney(railroad.getOwner().getInGameId(), railroad.getOwner().getMoney());
@@ -94,9 +98,11 @@ public class Game {
 		case Utility: {
 			Utility utility = (Utility) block;
 			if (!utility.isOwned()) {
+				currentPlayerThread.send("SystemMessage Do you want to buy " + utility.getName() + " ?");
 				System.out.println("Do you want to buy " + utility.getName() + "?");
 				currentPlayerThread.send("Buy");
 			} else if (!player.getOwnedProperties().contains(utility)) {
+				server.sendSystemPay(player.getName(), utility.getOwner().getName(), utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
 				player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
 				server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 				server.sendUpdateMoney(utility.getOwner().getInGameId(), utility.getOwner().getMoney());
@@ -149,11 +155,13 @@ public class Game {
 		if (player.isAlive()) {
 			if (player.isInJail()) {
 				player.setInJail(false);
+				server.sendSystemNormalMessage(player.getName(), "is in Jail. Skip a round.");
 				System.out.println("You are in jail, skip a round.");
 				this.currentPlayer++;
 				return;
 			} else {
 				System.out.println("Player " + player.getInGameId() + "'s turn");
+				server.sendSystemNormalMessage(player.getName(), "turn to roll dice.");
 				ServerThread currentPlayerThread = server.searchThread(this.currentPlayer);
 				currentPlayerThread.send("YourTurn");
 				currentPlayerThread.send("RollDice");
@@ -171,13 +179,16 @@ public class Game {
 				server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
 
 				if (passGo) {
+					server.sendSystemNormalMessage(player.getName(), "passed go. Got 200£.");
 					System.out.println(player.getInGameId() + " got 200 pound.");
 					player.setMoney(player.getMoney() + 200);
 					server.sendAll("Update Money " + this.currentPlayer + " " + player.getMoney());
 				}
 				Block block = map[player.getCurrentPosition()];
+				server.sendSystemNormalMessage(player.getName(), "reached "+ map[block.getPosition()].getName());
 				System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
 				action(player, block, diceNum, currentPlayerThread);
+				currentPlayerThread.send("FreeAction");
 				this.waitDecision();
 				if (player.getMoney() < 0) {
 					player.setAlive(false);
@@ -186,6 +197,7 @@ public class Game {
 				}
 			}
 		}
+		this.currentPlayer=(this.currentPlayer+1)%this.players.size();
 	}
 
 	public synchronized void testNextRound() {

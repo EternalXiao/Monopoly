@@ -142,6 +142,8 @@ public class ServerThread extends Thread {
 		else if (infos[0].equals("Ready")) {
 			if (infos[1].equals("1")) {
 				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
+				server.sendAll("Ready "+this.inGameId+" 1");
+				server.sendSystemNormalMessage(this.name, "ready");
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
 					server.gameStart();
@@ -178,16 +180,22 @@ public class ServerThread extends Thread {
 		//might have bugs
 		else if(infos[0].equals("Buy")) {
 			if(infos[1].equals("1")) {
+				server.sendSystemNormalMessage(this.name, "bought "+server.getGame().getMap()[player.getCurrentPosition()].getName());
 				player.buy((Property)server.getGame().getMap()[player.getCurrentPosition()]);
+				server.sendUpdateMoney(this.inGameId, player.getMoney());
 			}
 			synchronized(server.getGame()) {
 				server.getGame().notify();
 			}
 				
 		}
-		else if (infos[0].equals("PlayerChat")){
-			System.out.println(info);
-			server.sendAll(info);
+		else if (infos[0].equals("ChatMessage")){
+			server.sendChatMessage(this.name, info.substring(11));
+		}
+		else if(infos[0].equals("EndRound")) {
+			synchronized(server.getGame()) {
+				server.getGame().notify();
+			}
 		}
 	}
 

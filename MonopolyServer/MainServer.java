@@ -139,7 +139,7 @@ public class MainServer {
 			System.out.println("Game start!");
 			this.game.setAlivePlayers(this.game.getPlayers().size());
 			while (!this.game.getIsEnd()) {
-				this.game.testNextRound();
+				this.game.nextRound();
 			}
 			sendAll("GameOver");
 		}).start();
@@ -152,5 +152,17 @@ public class MainServer {
 	}
 	public void sendUpdateAlive(int playerId,int alive) {
 		this.sendAll("Update Alive "+playerId+" "+alive);
+	}
+	public void sendChatMessage(String nickname,String message) {
+		this.sendAll("ChatMessage "+nickname+": "+message);
+	}
+	public void sendSystemNormalMessage(String nickname,String message) {
+		this.sendAll("SystemMessage "+nickname +" "+message);
+	}
+	public void sendSystemPay(String payer, String receiver,int amount) {
+		this.sendAll("SystemMessage "+payer+" paid "+receiver +" "+amount);
+	}
+	public void sendSystemPayTax(String payer,int amount) {
+		this.sendAll("SystemMessage "+payer+" paid "+amount);
 	}
 }
