@@ -27,7 +27,7 @@ public class ServerThread extends Thread {
 		this.client = client;
 		this.dbCon = dbCon;
 		this.server = server;
-		this.isLoggedIn=false;
+		this.isLoggedIn = false;
 		try {
 			out = new PrintStream(client.getOutputStream());
 			in = new Scanner(client.getInputStream());
@@ -36,9 +36,14 @@ public class ServerThread extends Thread {
 		}
 
 	}
+	
+	public int getUid() {
+		return this.uid;
+	}
 	public boolean getLoggedIn() {
 		return this.isLoggedIn;
 	}
+
 	public int getInGameId() {
 		return this.inGameId;
 	}
@@ -89,61 +94,65 @@ public class ServerThread extends Thread {
 		String[] infos = info.split(" ");
 		// Handle Login message
 		if (infos[0].equals("Login")) {
-			String login = "select uid from users where username = ? and password = ?";
+			String login = "select uid,nickname from users where username = ? and password = ?";
 			PreparedStatement loginStatement = dbCon.prepareStatement(login);
 			loginStatement.setString(1, infos[1]);
 			loginStatement.setString(2, infos[2]);
 			ResultSet rs = loginStatement.executeQuery();
 			if (rs.next()) {
 				this.uid = rs.getInt(1);
-				String nickName = "select nickname from users where uid = ?";
-				PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
-				nickNameStatement.setInt(1, this.uid);
-				rs = nickNameStatement.executeQuery();
-				rs.next();
-				this.name = rs.getString(1);
-				if (this.name == null) {
-					this.send("NickName");
-				} else {
-					this.isLoggedIn=true;
-					this.send("Login 1");
-					synchronized (this.server.getGame()) {
-						for(int i = 0;i<this.server.getGame().getPlayers().size();i++) {
-							this.send("Player "+i+" "+this.server.getGame().getPlayers().get(i).getName());
+				this.name = rs.getString(2);
+				synchronized(this.server.getGame()) {
+					for(ServerThread st:this.server.getConnectedClients()) {
+						if(this.uid==st.getUid()) {
+							this.send("Login 2");
+							return;
 						}
-						this.inGameId= server.getGame().getPlayers().size();
-						this.send("Id "+this.inGameId);
-						this.server.getGame().addPlayer(this.name);
-						this.server.sendAll("Player "+ this.inGameId +" "+this.name);
-						this.player = this.server.getGame().getPlayers().get(this.inGameId);
 					}
+					this.server.getConnectedClients().add(this);
+					this.isLoggedIn = true;
+					this.send("Login 1");
+					for (int i = 0; i < this.server.getGame().getPlayers().size(); i++) {
+						this.send("Player " + i + " " + this.server.getGame().getPlayers().get(i).getName());
+					}
+					this.inGameId = server.getGame().getPlayers().size();
+					this.send("Id " + this.inGameId);
+					this.server.getGame().addPlayer(this.name);
+					this.server.sendAll("Player " + this.inGameId + " " + this.name);
+					this.player = this.server.getGame().getPlayers().get(this.inGameId);
 				}
 			} else
 				this.send("Login 0");
 		}
 		// Handle SignUp message
 		else if (infos[0].equals("SignUp")) {
-			String signUpVeri = "select count(*) from users where username = ?";
-			PreparedStatement signUpVeriStatement = dbCon.prepareStatement(signUpVeri);
-			signUpVeriStatement.setString(1, infos[1]);
-			ResultSet rs = signUpVeriStatement.executeQuery();
-			rs.next();
-			int result = rs.getInt(1);
-			if (result == 0) {
+			String signUpVeriUsername = "select uid from users where username = ?";
+			String signUpVeriNickname = "select uid from users where nickname = ?";
+			PreparedStatement signUpVeriStatement1 = dbCon.prepareStatement(signUpVeriUsername);
+			signUpVeriStatement1.setString(1, infos[1]);
+			PreparedStatement signUpVeriStatement2 = dbCon.prepareStatement(signUpVeriNickname); 
+			signUpVeriStatement2.setString(1, infos[3]);
+			ResultSet rs1 = signUpVeriStatement1.executeQuery();
+			ResultSet rs2 = signUpVeriStatement2.executeQuery();
+			if(rs1.next()) {
+				this.send("SignUp 0");
+			}else if(rs2.next()) {
 				this.send("SignUp 1");
-				String signUp = "insert into users (username, password, win,lose,score) values (?,?,0,0,0)";
-				PreparedStatement signUpStatement = dbCon.prepareStatement(signUp);
+			}else {
+				String SignUp = "insert into users (username,password,nickname,win,lose,score) values (?,?,?,0,0,0)";
+				PreparedStatement signUpStatement = dbCon.prepareStatement(SignUp);
 				signUpStatement.setString(1, infos[1]);
 				signUpStatement.setString(2, infos[2]);
-				signUpStatement.executeQuery();
-			} else
-				this.send("SignUp 0");
+				signUpStatement.setString(3, infos[3]);
+				signUpStatement.executeUpdate();
+				this.send("SignUp 2");
+			}
 		}
 		// Handle Ready message
 		else if (infos[0].equals("Ready")) {
 			if (infos[1].equals("1")) {
 				server.getGame().getPlayers().get(this.inGameId).setIsReady(true);
-				server.sendAll("Ready "+this.inGameId+" 1");
+				server.sendAll("Ready " + this.inGameId + " 1");
 				server.sendSystemNormalMessage(this.name, "ready");
 				System.out.println("Player " + this.inGameId + " ready");
 				if (server.checkStart())
@@ -178,23 +187,22 @@ public class ServerThread extends Thread {
 			}
 
 		}
-		//might have bugs
-		else if(infos[0].equals("Buy")) {
-			if(infos[1].equals("1")) {
-				server.sendSystemNormalMessage(this.name, "bought "+server.getGame().getMap()[player.getCurrentPosition()].getName());
-				player.buy((Property)server.getGame().getMap()[player.getCurrentPosition()]);
+		// might have bugs
+		else if (infos[0].equals("Buy")) {
+			if (infos[1].equals("1")) {
+				server.sendSystemNormalMessage(this.name,
+						"bought " + server.getGame().getMap()[player.getCurrentPosition()].getName());
+				player.buy((Property) server.getGame().getMap()[player.getCurrentPosition()]);
 				server.sendUpdateMoney(this.inGameId, player.getMoney());
 			}
-			synchronized(server.getGame()) {
+			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
-				
-		}
-		else if (infos[0].equals("ChatMessage")){
+
+		} else if (infos[0].equals("ChatMessage")) {
 			server.sendChatMessage(this.name, info.substring(11));
-		}
-		else if(infos[0].equals("EndRound")) {
-			synchronized(server.getGame()) {
+		} else if (infos[0].equals("EndRound")) {
+			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
 		}

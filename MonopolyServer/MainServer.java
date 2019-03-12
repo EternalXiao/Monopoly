@@ -20,7 +20,7 @@ public class MainServer {
 	private int port;
 	ServerSocket server;
 	Connection dbCon;
-	LinkedList<ServerThread> connectedClients;
+	private LinkedList<ServerThread> connectedClients;
 	private Game game;
 
 	public MainServer(int port) {
@@ -89,7 +89,7 @@ public class MainServer {
 				Socket client = server.accept();
 				System.out.println("One client connected...");
 				ServerThread ST = new ServerThread(client, dbCon,this);
-				this.connectedClients.add(ST);
+				//this.connectedClients.add(ST);
 				ST.start();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -148,7 +148,7 @@ public class MainServer {
 		this.sendAll("Update Money "+playerId + " "+money);
 	}
 	public void sendUpdatePosition(int playerId,int position) {
-		this.sendAll("Update Money "+playerId+ " "+position);
+		this.sendAll("Update Position "+playerId+ " "+position);
 	}
 	public void sendUpdateAlive(int playerId,int alive) {
 		this.sendAll("Update Alive "+playerId+" "+alive);

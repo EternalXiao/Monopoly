@@ -68,10 +68,15 @@ public class SignUpPage {
 					|| nicknameField.getText().length() > 20) {
 				this.prompt.setText("All field must not be less than 20 characters");
 				this.prompt.setTextFill(Color.RED);
-			} else
+				this.usernameField.clear();
+				this.passwordField.clear();
+			} else {
 				this.client.signUp(usernameField.getText(), passwordField.getText(), nicknameField.getText());
+				this.usernameField.clear();
+				this.passwordField.clear();
+			}
 		});
-		this.signUp.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+		this.signUp.setOnKeyPressed(e -> {
 			if (e.getCode() == KeyCode.ENTER) {
 				if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()
 						|| nicknameField.getText().isEmpty()) {
@@ -81,8 +86,13 @@ public class SignUpPage {
 						|| nicknameField.getText().length() > 20) {
 					this.prompt.setText("All field must not be less than 20 characters");
 					this.prompt.setTextFill(Color.RED);
-				} else
+					this.usernameField.clear();
+					this.passwordField.clear();
+				} else {
 					this.client.signUp(usernameField.getText(), passwordField.getText(), nicknameField.getText());
+					this.usernameField.clear();
+					this.passwordField.clear();
+				}
 			}
 		});
 		this.exit.setOnAction(e -> {

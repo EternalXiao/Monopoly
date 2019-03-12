@@ -101,6 +101,7 @@ public class Game {
 				currentPlayerThread.send("SystemMessage Do you want to buy " + utility.getName() + " ?");
 				System.out.println("Do you want to buy " + utility.getName() + "?");
 				currentPlayerThread.send("Buy");
+				this.waitDecision();
 			} else if (!player.getOwnedProperties().contains(utility)) {
 				server.sendSystemPay(player.getName(), utility.getOwner().getName(), utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
 				player.pay(utility.getOwner(), utility.getTotalRent(utility.getOwner().getOwnedUtilities(), diceNum));
@@ -119,7 +120,7 @@ public class Game {
 		case CommunityChest: {
 			CommunityChest communityChest = (CommunityChest) block;
 			int money = communityChest.getPrice();
-			server.sendAll("System "+player.getInGameId() + " got "+money +"£");
+			server.sendSystemNormalMessage(player.getName(), "got "+money +"£");
 			player.receiveMoney(money);
 			server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 			break;
@@ -176,8 +177,7 @@ public class Game {
 					passGo = true;
 				}
 				player.setCurrentPosition((player.getCurrentPosition() + diceNum) % 40);
-				server.sendAll("Update Position " + player.getInGameId() + " " + player.getCurrentPosition());
-
+				server.sendUpdatePosition(player.getInGameId(), player.getCurrentPosition());
 				if (passGo) {
 					server.sendSystemNormalMessage(player.getName(), "passed go. Got 200£.");
 					System.out.println(player.getInGameId() + " got 200 pound.");
@@ -185,7 +185,6 @@ public class Game {
 					server.sendAll("Update Money " + this.currentPlayer + " " + player.getMoney());
 				}
 				Block block = map[player.getCurrentPosition()];
-				server.sendSystemNormalMessage(player.getName(), "reached "+ map[block.getPosition()].getName());
 				System.out.println(player.getInGameId() + " have reached " + map[block.getPosition()].getName());
 				action(player, block, diceNum, currentPlayerThread);
 				currentPlayerThread.send("FreeAction");

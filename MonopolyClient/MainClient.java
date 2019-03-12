@@ -151,8 +151,11 @@ public class MainClient {
 		if (infos[0].equals("Login")) {
 			if (infos[1].equals("1"))
 				Platform.runLater(() -> gui.setGameDeskPage());
-			else
+			else if(infos[1].equals("2"))
+				Platform.runLater(() -> gui.getLoginPage().accountOnline());
+			else {
 				Platform.runLater(() -> gui.getLoginPage().loginFailed());
+			}
 		}
 		// Handle SignUp message
 		else if (infos[0].equals("SignUp")) {

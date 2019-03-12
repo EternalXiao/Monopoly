@@ -47,23 +47,23 @@ public class Chance extends Block {
         switch (this.getCard().getName()) {
             case "forward3":
                 player.setCurrentPosition(player.getCurrentPosition() + 3);
-                server.sendAll("System" + player.getInGameId()+" got the chance: Forward 3 blocks");
+                server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 3 blocks");
                 break;
             case "goback3":
                 player.setCurrentPosition(player.getCurrentPosition() - 3);
-                server.sendAll("System " + player.getInGameId()+" got the chance: Backward 3 blocks");
+                server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 3 blocks");
                 break;
             case "gojail":
                 player.setCurrentPosition(30);
-                server.sendAll("System "+player.getInGameId()+" got the chance: Go to jail");
+                server.sendSystemNormalMessage(player.getName(), "got the chance: Go to jail");
                 break;
             case "goback2":
                 player.setCurrentPosition(player.getCurrentPosition() - 2);
-                server.sendAll("System "+player.getInGameId()+" got the chance: Backward 2 blocks");
+                server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 2 blocks");
                 break;
             case "forward2":
                 player.setCurrentPosition(player.getCurrentPosition() + 2);
-                server.sendAll("System "+player.getInGameId()+" got the chance: Forward 2 blocks");
+                server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 2 blocks");
                 break;
         }
     }
