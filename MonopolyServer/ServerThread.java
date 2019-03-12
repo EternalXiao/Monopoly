@@ -36,10 +36,11 @@ public class ServerThread extends Thread {
 		}
 
 	}
-	
+
 	public int getUid() {
 		return this.uid;
 	}
+
 	public boolean getLoggedIn() {
 		return this.isLoggedIn;
 	}
@@ -102,9 +103,9 @@ public class ServerThread extends Thread {
 			if (rs.next()) {
 				this.uid = rs.getInt(1);
 				this.name = rs.getString(2);
-				synchronized(this.server.getGame()) {
-					for(ServerThread st:this.server.getConnectedClients()) {
-						if(this.uid==st.getUid()) {
+				synchronized (this.server.getGame()) {
+					for (ServerThread st : this.server.getConnectedClients()) {
+						if (this.uid == st.getUid()) {
 							this.send("Login 2");
 							return;
 						}
@@ -130,15 +131,15 @@ public class ServerThread extends Thread {
 			String signUpVeriNickname = "select uid from users where nickname = ?";
 			PreparedStatement signUpVeriStatement1 = dbCon.prepareStatement(signUpVeriUsername);
 			signUpVeriStatement1.setString(1, infos[1]);
-			PreparedStatement signUpVeriStatement2 = dbCon.prepareStatement(signUpVeriNickname); 
+			PreparedStatement signUpVeriStatement2 = dbCon.prepareStatement(signUpVeriNickname);
 			signUpVeriStatement2.setString(1, infos[3]);
 			ResultSet rs1 = signUpVeriStatement1.executeQuery();
 			ResultSet rs2 = signUpVeriStatement2.executeQuery();
-			if(rs1.next()) {
+			if (rs1.next()) {
 				this.send("SignUp 0");
-			}else if(rs2.next()) {
+			} else if (rs2.next()) {
 				this.send("SignUp 1");
-			}else {
+			} else {
 				String SignUp = "insert into users (username,password,nickname,win,lose,score) values (?,?,?,0,0,0)";
 				PreparedStatement signUpStatement = dbCon.prepareStatement(SignUp);
 				signUpStatement.setString(1, infos[1]);
@@ -205,7 +206,7 @@ public class ServerThread extends Thread {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
-		}
+		} 
 	}
 
 	/**
@@ -214,17 +215,18 @@ public class ServerThread extends Thread {
 	 */
 	public void listenClient() {
 		new Thread(() -> {
-			while (client.isConnected()) {
-				if (in.hasNext()) {
-					String request = in.nextLine().trim();
-					System.out.println("Receiving Client request :" + request);
-					try {
-						parseInfo(request);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+			while (in.hasNext()) {
+				String request = in.nextLine().trim();
+				System.out.println("Receiving Client request :" + request);
+				if(request.equals("Exit"))
+					break;
+				try {
+					parseInfo(request);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
+			server.getConnectedClients().remove(this);
 		}).start();
 	}
 

@@ -97,7 +97,7 @@ public class MainClient {
 	 * parse the message received
 	 */
 	public void listenServer() {
-		new Thread(() -> {
+		Thread listener = new Thread(() -> {
 			while (client.isConnected()) {
 				if (in.hasNext()) {
 					String info = in.nextLine().trim();
@@ -109,7 +109,9 @@ public class MainClient {
 					}
 				}
 			}
-		}).start();
+		});
+		listener.setDaemon(true);
+		listener.start();
 	}
 
 	/**

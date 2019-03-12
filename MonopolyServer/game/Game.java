@@ -9,7 +9,6 @@ public class Game {
 	private Block[] map;
 	private LinkedList<Player> players;
 	private int countRound;
-	private int jailRound;
 	private boolean isEnd;
 	private int alivePlayers;
 	// temporary
@@ -167,8 +166,10 @@ public class Game {
 				currentPlayerThread.send("YourTurn");
 				currentPlayerThread.send("RollDice");
 				this.waitDecision();
-				dice1 = Dice.getDiceNum();
-				dice2 = Dice.getDiceNum();
+				//dice1 = Dice.getDiceNum();
+				//dice2 = Dice.getDiceNum();
+				dice1=1;
+				dice2=1;
 				diceNum = dice1 + dice2;
 				server.sendAll("Update Dice " + dice1 + " " + dice2);
 				System.out.println(player.getInGameId() + " roll out " + diceNum);

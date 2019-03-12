@@ -74,11 +74,20 @@ public class Database {
 		return true;
 		
 	}
-	public String getNickName(String username) {
-		return null;
+	public void signUp(String username,String password,String nickname) {
+		
 	}
-	public boolean setNickName(String username,String nickName) {
+	public boolean checkUsernameExist(String username) {
 		return true;
+	}
+	public boolean checkNicknameExist(String nickname) {
+		return true;
+	}
+	public int getUid(String username) {
+		return 0;
+	}
+	public String getNickname(int uid) {
+		return null;
 	}
 	//temp
 	public void UpdateGameRecord(String nickName) {
