@@ -18,7 +18,7 @@ public class MainClient {
 	private PrintStream out;
 	private Scanner in;
 	private ClientStage gui;
-	// temporary
+	private int Id;
 	private Block[] map;
 	private LinkedList<Player> players;
 
@@ -26,7 +26,6 @@ public class MainClient {
 		this.serverIP = serverIP;
 		this.port = port;
 		this.connect();
-		// temp
 		this.players = new LinkedList<>();
 	}
 
@@ -90,8 +89,8 @@ public class MainClient {
 	 * @param username the username provided
 	 * @param password the password provided
 	 */
-	public void signUp(String username, String password) {
-		this.send("SignUp " + username + " " + password);
+	public void signUp(String username, String password,String nickname) {
+		this.send("SignUp " + username + " " + password+" "+nickname);
 	}
 	/**
 	 * This method will create a new thread to listen to the server and
@@ -153,14 +152,16 @@ public class MainClient {
 			if (infos[1].equals("1"))
 				Platform.runLater(() -> gui.setGameDeskPage());
 			else
-				Platform.runLater(() -> gui.loginFailed());
+				Platform.runLater(() -> gui.getLoginPage().loginFailed());
 		}
 		// Handle SignUp message
 		else if (infos[0].equals("SignUp")) {
-			if (infos[1].equals("1"))
-				Platform.runLater(() -> gui.signUpSuccess());
+			if (infos[1].equals("2"))
+				Platform.runLater(() -> gui.getSignUpPage().signUpSuccess());
+			else if(infos[1].equals("1"))
+				Platform.runLater(() -> gui.getSignUpPage().nicknameUsed());
 			else
-				Platform.runLater(() -> gui.signUpFail());
+				Platform.runLater(() -> gui.getSignUpPage().usernameUsed());
 		}
 		// Handle Ready message
 		else if (infos[0].equals("Ready")) {
@@ -235,21 +236,7 @@ public class MainClient {
 				});
 
 			}
-		} else if (infos[0].equals("NickName")) {
-			if (infos.length == 1) {
-				Platform.runLater(() -> {
-					gui.nickName();
-				});
-			} else if (infos[1].equals("1")) {
-				Platform.runLater(() -> {
-					gui.setGameDeskPage();
-				});
-			} else {
-				Platform.runLater(() -> {
-					gui.nickNameFail();
-				});
-			}
-		}
+		} 
 		//Handle Player message
 		else if (infos[0].equals("Player")) {
 			this.players.add(new Player(Integer.parseInt(infos[1]),infos[2]));
@@ -276,6 +263,9 @@ public class MainClient {
 			Platform.runLater(()->{
 				MainGameDesk.getEndButton().setDisable(false);
 			});
+		}
+		else if(infos[0].equals("Id")) {
+			this.Id=Integer.parseInt(infos[1]);
 		}
 	}
 	/**

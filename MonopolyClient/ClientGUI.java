@@ -177,7 +177,7 @@ public class ClientGUI {
 				prompt.setText("The length of password should be\ngreater than 7 and less than 16");
 				prompt.setTextFill(Color.RED);
 			} else {
-				client.signUp(username, password);
+				//client.signUp(username, password);
 			}
 		});
 		exit.setOnAction(e -> {

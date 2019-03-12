@@ -112,6 +112,7 @@ public class ServerThread extends Thread {
 							this.send("Player "+i+" "+this.server.getGame().getPlayers().get(i).getName());
 						}
 						this.inGameId= server.getGame().getPlayers().size();
+						this.send("Id "+this.inGameId);
 						this.server.getGame().addPlayer(this.name);
 						this.server.sendAll("Player "+ this.inGameId +" "+this.name);
 						this.player = this.server.getGame().getPlayers().get(this.inGameId);
