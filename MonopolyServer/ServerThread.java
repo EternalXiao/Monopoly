@@ -188,21 +188,68 @@ public class ServerThread extends Thread {
 			}
 
 		}
-		// might have bugs
+		// Handle Buy message
 		else if (infos[0].equals("Buy")) {
 			if (infos[1].equals("1")) {
-				server.sendSystemNormalMessage(this.name,
+				if(player.buy((Property) server.getGame().getMap()[player.getCurrentPosition()])) {
+					server.sendSystemNormalMessage(this.name,
 						"bought " + server.getGame().getMap()[player.getCurrentPosition()].getName());
-				player.buy((Property) server.getGame().getMap()[player.getCurrentPosition()]);
-				server.sendUpdateMoney(this.inGameId, player.getMoney());
+					server.sendUpdateMoney(this.inGameId, player.getMoney());
+				}
+				else {
+					this.send("SystemMessage Do not have enough money");
+					return;
+				}
 			}
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
-
-		} else if (infos[0].equals("ChatMessage")) {
+			
+		} 
+		//Handle ChatMessage message
+		else if (infos[0].equals("ChatMessage")) {
 			server.sendChatMessage(this.name, info.substring(11));
-		} else if (infos[0].equals("EndRound")) {
+		}
+		//Handle Sell Message
+		else if(infos[0].equals("Sell")) {
+			int sellResult = this.player.sell((Property)this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
+			if(sellResult==0) {
+				this.send("SystemMessage This is not your property");
+			}
+			else if(sellResult==1) {
+				this.send("SystemMessge You must sell evenly");
+			}
+			else if(sellResult==2) {
+				server.sendSystemNormalMessage(this.name, "degraded "+this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
+				server.sendUpdateMoney(this.inGameId, this.player.getMoney());
+				server.sendUpdateLevel(Integer.parseInt(infos[1]), ((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
+			}
+			else {
+				server.sendSystemNormalMessage(this.name, "sold "+this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
+				server.sendUpdateMoney(this.inGameId, this.player.getMoney());
+				server.sendUpdateOwner(Integer.parseInt(infos[1]), -1);
+			}
+		}
+		//Handle Build message
+		else if(infos[0].equals("Build")) {
+			int buildResult = this.player.buildHouse((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
+			if(buildResult ==0) {
+				this.send("SystemMessage This is not your property");
+			}
+			else if(buildResult==1) {
+				this.server.sendSystemNormalMessage(this.name, "upgraded house");
+				this.server.sendUpdateMoney(this.inGameId, this.player.getMoney());
+				this.server.sendUpdateLevel(Integer.parseInt(infos[1]), ((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
+			}
+			else if(buildResult==2){
+				this.send("SystemMessage You do not have enough money");
+			}
+			else {
+				this.send("SystemMessage You do not own this group");
+			}
+		}
+		//Handle EndRound
+		else if (infos[0].equals("EndRound")) {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}

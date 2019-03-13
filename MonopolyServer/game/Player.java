@@ -120,8 +120,52 @@ public class Player {
 		}
 	}
 
-	public boolean sell(Property property) {
-		return true;
+	public int sell(Property property) {
+		if (property.getOwner() != this) {
+			return 0;
+		} else {
+			switch (property.getType()) {
+			case Street: {
+				Street street = (Street) property;
+				if (street.getSameColorStreetNum() == getOwnedSameColorStreet(street.getColor())) {
+					if(street.getHouseNum() > 0 && getMaxHouseOnSameColor(street) - street.getHouseNum() >= 1) {
+						return 1;
+					}
+					else if (street.getHouseNum() > 0 && getMaxHouseOnSameColor(street) - street.getHouseNum() < 1) {
+						street.degradeHouse();
+						this.receiveMoney(street.getHouseCost() / 2);
+						return 2;
+					} else if (street.getHouseNum() == 0 && getMaxHouseOnSameColor(street) - street.getHouseNum() < 1) {
+						street.setOwned(false);
+						street.setOwner(null);
+						this.receiveMoney(street.getHouseCost() / 2);
+					}
+				} else {
+					street.setOwned(false);
+					street.setOwner(null);
+					this.receiveMoney(street.getHouseCost() / 2);
+				}
+				break;
+			}
+			case Utility: {
+				Utility utility = (Utility) property;
+				utility.setOwned(false);
+				utility.setOwner(null);
+				this.receiveMoney(utility.getPrice() / 2);
+				break;
+			}
+			case Railroad: {
+				Railroad railroad = (Railroad) property;
+				railroad.setOwned(false);
+				railroad.setOwner(null);
+				this.receiveMoney(railroad.getPrice() / 2);
+				break;
+			}
+			default:
+				break;
+			}
+			return 3;
+		}
 	}
 
 	public int getOwnedRailroads() {
@@ -185,51 +229,22 @@ public class Player {
 		return max;
 	}
 
-	public void buildHouse(Street street) {
-			if (street.getSameColorStreetNum() == getOwnedSameColorStreet(street.getColor())
-					&& street.getHouseNum() - getMinHouseOnSameColor(street) < 1) {
-				if (this.money >= street.getHouseCost()) {
-					street.setHouseNum(street.getHouseNum() + 1);
-					this.setMoney(this.getMoney() - street.getHouseCost());
-				} else {
-					System.out.println("Sorry, you don't have enough money.");
-				}
+	public int buildHouse(Street street) {
+		if (street.getOwner() != this) {
+			return 0;
+		} else if (street.getSameColorStreetNum() == getOwnedSameColorStreet(street.getColor())
+				&& street.getHouseNum() - getMinHouseOnSameColor(street) < 1) {
+			if (this.money >= street.getHouseCost()) {
+				street.upgradeHouse();
+				this.payMoney(street.getHouseCost());
+				return 1;
+			} else {
+				System.out.println("Sorry, you don't have enough money.");
+				return 2;
 			}
+		}
+		else 
+			return 3;
 	}
 
-	public void sellProperty(Property property) {
-		switch (property.getType()) {
-		case Street: {
-			Street street = (Street) property;
-			if (street.getSameColorStreetNum() == getOwnedSameColorStreet(street.getColor())) {
-				if (street.getHouseNum() > 0 && getMaxHouseOnSameColor(street) - street.getHouseNum() < 1) {
-					street.setHouseNum(street.getHouseNum() - 1);
-					this.setMoney(this.getMoney() + street.getHouseCost() / 2);
-				} else if (street.getHouseNum() == 0 && getMaxHouseOnSameColor(street) - street.getHouseNum() < 1) {
-					street.setOwned(false);
-					street.setOwner(null);
-					this.setMoney(this.getMoney() + street.getHouseCost() / 2);
-				}
-			} else {
-				street.setOwned(false);
-				street.setOwner(null);
-				this.setMoney(this.getMoney() + street.getHouseCost() / 2);
-			}
-		}
-		case Utility: {
-			Utility utility = (Utility) property;
-			utility.setOwned(false);
-			utility.setOwner(null);
-			this.setMoney(this.getMoney() + utility.getPrice() / 2);
-		}
-		case Railroad: {
-			Railroad railroad = (Railroad) property;
-			railroad.setOwned(false);
-			railroad.setOwner(null);
-			this.setMoney(this.getMoney() + railroad.getPrice() / 2);
-		}
-		default:
-			break;
-		}
-	}
 }

@@ -153,6 +153,12 @@ public class MainServer {
 	public void sendUpdateAlive(int playerId,int alive) {
 		this.sendAll("Update Alive "+playerId+" "+alive);
 	}
+	public void sendUpdateLevel(int blockId,int level) {
+		this.sendAll("Update BlockLevel "+blockId+" "+level);
+	}
+	public void sendUpdateOwner(int blockId,int playerId) {
+		this.sendAll("Update BlockOwner "+blockId+" "+playerId);
+	}
 	public void sendChatMessage(String nickname,String message) {
 		this.sendAll("ChatMessage "+nickname+": "+message);
 	}

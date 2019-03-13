@@ -32,6 +32,12 @@ public class Street extends Property {
     public void setHouseNum(int houseNum) {
         this.houseNum = houseNum;
     }
+    public void upgradeHouse() {
+    	this.houseNum++;
+    }
+    public void degradeHouse() {
+    	this.houseNum--;
+    }
 
     public int getSameColorStreetNum() {
         int num = 0;
