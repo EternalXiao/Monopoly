@@ -221,6 +221,10 @@ public class MainClient {
 				//gui update
 			} else if (infos[1].equals("BlockOwner")) {
 				((Property)this.map[Integer.parseInt(infos[2])]).setOwner(this.players.get(Integer.parseInt(infos[3])));
+				Platform.runLater(()->{
+					MainGameDesk.setBlock(Integer.parseInt(infos[3]+1), Integer.parseInt(infos[2]));
+				});
+				
 				//gui update
 			} else if (infos[1].equals("BlockLevel")) {
 				((Street)this.map[Integer.parseInt(infos[2])]).setLevel(Integer.parseInt(infos[3]));

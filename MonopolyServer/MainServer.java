@@ -96,6 +96,10 @@ public class MainServer {
 			}
 		}
 	}
+	/**
+	 * This method is to check whether all the players are ready
+	 * @return true if all are ready, else false
+	 */
 	public boolean checkStart() {
 		for(Player player:game.getPlayers()) {
 			if(!player.isReady())
@@ -126,6 +130,11 @@ public class MainServer {
 			st.send(info);
 		}
 	}
+	/**
+	 * This method find the ServerThread with a given id
+	 * @param id the id of the ServerThread
+	 * @return the ServerThread found
+	 */
 	public ServerThread searchThread(int id) {
 		for(ServerThread st:this.connectedClients) {
 			if(st.getInGameId()==id)
@@ -133,6 +142,9 @@ public class MainServer {
 		}
 		return null;
 	}
+	/**
+	 * This method is to start the game
+	 */
 	public void gameStart() {
 		new Thread(() -> {
 			sendAll("Start");

@@ -22,7 +22,7 @@ public class ClientApplication extends Application {
 	public void start(Stage stage) throws Exception {
 		String ip = "";
 		int port = 0;
-		try (FileInputStream in = new FileInputStream(new File("src/MonopolyClient/server.properties"))) {
+		try (FileInputStream in = new FileInputStream(new File("/Users/QWEJKLJKL/Dropbox/group16/MonopolyClient/server.properties"))) {
 			Properties pro = new Properties();
 			pro.load(in);
 			ip = pro.getProperty("ip");

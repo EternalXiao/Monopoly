@@ -166,8 +166,10 @@ public class Game {
 				currentPlayerThread.send("YourTurn");
 				currentPlayerThread.send("RollDice");
 				this.waitDecision();
-				dice1 = Dice.getDiceNum();
-				dice2 = Dice.getDiceNum();
+//				dice1 = Dice.getDiceNum();
+//				dice2 = Dice.getDiceNum();
+				dice1 =2 ;
+				dice2 =3;
 				diceNum = dice1 + dice2;
 				server.sendAll("Update Dice " + dice1 + " " + dice2);
 				System.out.println(player.getInGameId() + " roll out " + diceNum);

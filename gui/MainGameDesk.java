@@ -37,17 +37,17 @@ public class MainGameDesk {
     public static final int[] informationX = {0,1,0,1,0,1};
 
 
-	public static final int[] chessXAxisTop = {0,0,0,0,0,0};
-	public static final int[] chessYAxisTop = { 0,1,2,0,1,2 };
+	public static final int[] chessXAxisTop = {0,1,0,1,0,1};
+	public static final int[] chessYAxisTop = { 0,0,1,1,2,2 };
 
 	public static final int[] chessXAxisRight = { 1,1,2,2,3,3 };
 	public static final int[] chessYAxisRight = { 0,1,0,1,0,1};
 
-	public static final int[] chessXAxisBottom = { 0,0,0,1,1,1 };
-	public static final int[] chessYAxisBottom = { 1,2,3,1,2,3 };
+	public static final int[] chessXAxisBottom = { 0,1,0,1,0,1 };
+	public static final int[] chessYAxisBottom = { 1,1,2,2,3,3 };
 
 	public static final int[] chessXAxisLeft = { 0,0,1,1,2,2 };
-	public static final int[] chessYAxisLeft = { 1,1,1,2,2,2 };
+	public static final int[] chessYAxisLeft = { 0,1,0,1,0,1 };
 
 	/**
 	 * 用户标识符位置
@@ -134,7 +134,7 @@ public class MainGameDesk {
 	/**
 	 * 用于存放默认骰子的照片
 	 */
-	private static String url = "file:src/image/";
+	private static String url = "file:/Users/QWEJKLJKL/Dropbox/group16/image/";
 	private static ImagePattern diceDefault = new ImagePattern(new Image(url + "default.jpg"));
 	private static final String[] chessName = { "null","piece1", "piece2","piece3",
             "piece4","piece5","piece6"};
@@ -208,7 +208,6 @@ public class MainGameDesk {
 		displayPlayersInformation();
         displayChatBox();
         displaySystemMessage();
-
 		scene = new Scene(mainPane, 1400, 850);
 	}
 
@@ -254,9 +253,6 @@ public class MainGameDesk {
 
 		root.add(imageViews[i], xAxis[i], yAxis[i]);
 
-		imageViews[i].setOnMouseClicked((event) ->{
-
-		});
 	}
 
 	/**
@@ -308,6 +304,7 @@ public class MainGameDesk {
 
         Circle cir = new Circle(20);
 		cir.setStrokeWidth(2);
+		cir.setStroke(Color.BLACK);
         cir.setFill(new ImagePattern(tempImage));
 
 //        Text nickName = new Text(client.getPlayers().get(number).getName());
@@ -495,36 +492,71 @@ public class MainGameDesk {
 		systemMessageHB.getChildren().add(systemMessage);
 		mainPane.setTop(systemMessageHB);
 	}
+
+//    public static void setBlockOwner(int currentPlayer, int position){
+//            chess[position].getChildren().remove(ClientStage.findElement(0,0,chess[position]));
+//            Image tempImage = (new Image(url + chessName[currentPlayer] + ".png"));
+//            ImageView userOwner  = new ImageView(tempImage);
+//            userOwner.setFitWidth(25);
+//            userOwner.setFitHeight(25);
+//            chess[position].add(userOwner,userXAxisBottom,userYAxisBottom);
+//    }
 	/**
 	 * 购买地皮并且设置用户标识符
 	 */
 	public static void setBlock(int currentPlayer, int position){
-		if (((position + 1)>=0) && ((position + 1)<=10))		//棋子在棋盘下方
-			chess[(position + 1) % 40].add(userIcon[currentPlayer], userXAxisBottom, userYAxisBottom);
 
-		else if (((position + 1)> 10) && ((position + 1)<20))	//棋子在棋盘左方
-			chess[(position + 1) % 40].add(userIcon[currentPlayer], userXAxisLeft, userYAxisLeft);
+        Image tempImage = (new Image(url + chessName[currentPlayer] + ".png"));
+        ImageView userOwner  = new ImageView(tempImage);
+        userOwner.setFitWidth(25);
+        userOwner.setFitHeight(25);
 
-		else if(((position + 1)>= 20) && ((position + 1) <= 30))//棋子在棋盘上方
-			chess[(position + 1) % 40].add(userIcon[currentPlayer], userXAxisTop, userYAxisTop);
-		else									//棋子在棋盘右方
-			chess[(position + 1) % 40].add(userIcon[currentPlayer], userXAxisRight, userYAxisRight);
+		if (((position)>=0) && ((position)<=10)) {    //棋子在棋盘下方
+            chess[position].getChildren().remove(ClientStage.findElement(userXAxisBottom,userYAxisBottom,chess[position]));
+            chess[position].add(userOwner,userXAxisBottom,userYAxisBottom);
+
+        }else if (((position  )> 10) && ((position  )<20)) {    //棋子在棋盘左方
+            chess[position].getChildren().remove(ClientStage.findElement(userXAxisLeft,userYAxisLeft,chess[position]));
+            chess[position].add(userOwner,userXAxisLeft,userYAxisLeft);
+
+        }else if(((position  )>= 20) && ((position  ) <= 30)) {//棋子在棋盘上方
+            chess[position].getChildren().remove(ClientStage.findElement(userXAxisTop,userYAxisTop,chess[position]));
+            chess[position].add(userOwner,userXAxisTop,userYAxisTop);
+        }else {                                    //棋子在棋盘右方
+            chess[position].getChildren().remove(ClientStage.findElement(userXAxisRight,userYAxisRight,chess[position]));
+            chess[position].add(userOwner,userXAxisRight,userYAxisRight);
+        }
+
 	}
 
 	/**
 	 * 建造/销毁房屋
 	 */
 	public static void setdHouse(int level,int position){
-		if (((position + 1)>=0) && ((position + 1)<=10))		//棋子在棋盘下方
-			chess[(position + 1) % 40].add(houseLevel[level], houseXAxisBottom, houseYAxisBottom);
 
-		else if (((position + 1)> 10) && ((position + 1)<20))	//棋子在棋盘左方
-			chess[(position + 1) % 40].add(houseLevel[level], houseXAxisLeft, houseYAxisLeft);
 
-		else if(((position + 1)>= 20) && ((position + 1) <= 30))//棋子在棋盘上方
-			chess[(position + 1) % 40].add(houseLevel[level], houseXAxisTop, houseYAxisTop);
-		else									//棋子在棋盘右方
-			chess[(position + 1) % 40].add(houseLevel[level], houseXAxisRight, houseYAxisRight);
+        Image tempImage = (new Image(url + houseLevel[level] + ".png"));
+        ImageView houseBuilder  = new ImageView(tempImage);
+        houseBuilder.setFitWidth(25);
+        houseBuilder.setFitHeight(25);
+
+		if (((position)>=0) && ((position)<=10)) {        //棋子在棋盘下方
+            chess[position].getChildren().remove(ClientStage.findElement(houseXAxisBottom,houseYAxisBottom,chess[position]));
+            chess[position].add(houseBuilder,houseXAxisBottom,houseYAxisBottom);
+
+        }else if (((position  )> 10) && ((position  )<20)) {    //棋子在棋盘左方
+            chess[position].getChildren().remove(ClientStage.findElement(houseXAxisLeft,houseYAxisLeft,chess[position]));
+            chess[position].add(houseBuilder,houseXAxisLeft,houseYAxisLeft);
+
+        }else if(((position  )>= 20) && ((position  ) <= 30)) {//棋子在棋盘上方
+            chess[position].getChildren().remove(ClientStage.findElement(houseXAxisTop,houseYAxisTop,chess[position]));
+            chess[position].add(houseBuilder,houseXAxisTop,houseYAxisTop);
+        }else {                                    //棋子在棋盘右方
+
+            chess[position].getChildren().remove(ClientStage.findElement(houseXAxisRight,houseYAxisRight,chess[position]));
+            chess[position].add(houseBuilder,houseXAxisRight,houseYAxisRight);
+        }
+
 	}
 
 	/**

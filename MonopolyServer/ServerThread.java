@@ -195,6 +195,7 @@ public class ServerThread extends Thread {
 					server.sendSystemNormalMessage(this.name,
 						"bought " + server.getGame().getMap()[player.getCurrentPosition()].getName());
 					server.sendUpdateMoney(this.inGameId, player.getMoney());
+					server.sendUpdateOwner(player.getCurrentPosition(), player.getInGameId());
 				}
 				else {
 					this.send("SystemMessage Do not have enough money");
@@ -217,7 +218,7 @@ public class ServerThread extends Thread {
 				this.send("SystemMessage This is not your property");
 			}
 			else if(sellResult==1) {
-				this.send("SystemMessge You must sell evenly");
+				this.send("SystemMessge You must degrade evenly");
 			}
 			else if(sellResult==2) {
 				server.sendSystemNormalMessage(this.name, "degraded "+this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
