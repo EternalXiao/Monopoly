@@ -183,4 +183,21 @@ public class MainServer {
 	public void sendSystemPayTax(String payer,int amount) {
 		this.sendAll("SystemMessage "+payer+" paid "+amount);
 	}
+	public void sendResetPlayer() {
+		this.sendAll("ResetPlayer");
+	}
+	public void playerExit(int playerId) {
+		for(int i=playerId+1;i<this.connectedClients.size();i++) {
+			this.connectedClients.get(i).setInGameId(i-1);
+			this.connectedClients.get(i).getPlayer().setInGameId(i-1);
+		}
+		this.game.getPlayers().remove(playerId);
+		this.connectedClients.remove(playerId);
+	}
+	public void sendAllCurrentPlayerProfile() {
+		this.sendResetPlayer();
+		for(ServerThread st:this.connectedClients) {
+			st.sendCurrentPlayerProfile();
+		}
+	}
 }

@@ -40,6 +40,9 @@ public class ServerThread extends Thread {
 	public int getUid() {
 		return this.uid;
 	}
+	public Player getPlayer() {
+		return this.player;
+	}
 
 	public boolean getLoggedIn() {
 		return this.isLoggedIn;
@@ -104,6 +107,15 @@ public class ServerThread extends Thread {
 				this.uid = rs.getInt(1);
 				this.name = rs.getString(2);
 				synchronized (this.server.getGame()) {
+					if(this.server.getGame().getIsStart()) {
+						this.send("Login 3");
+						return;
+					}
+					if(this.server.getGame().getPlayers().size()==6) {
+						this.send("Login 4");
+						return;
+					}
+					//wrap latter
 					for (ServerThread st : this.server.getConnectedClients()) {
 						if (this.uid == st.getUid()) {
 							this.send("Login 2");
@@ -113,9 +125,7 @@ public class ServerThread extends Thread {
 					this.server.getConnectedClients().add(this);
 					this.isLoggedIn = true;
 					this.send("Login 1");
-					for (int i = 0; i < this.server.getGame().getPlayers().size(); i++) {
-						this.send("Player " + i + " " + this.server.getGame().getPlayers().get(i).getName());
-					}
+					this.sendCurrentPlayerProfile();
 					this.inGameId = server.getGame().getPlayers().size();
 					this.send("Id " + this.inGameId);
 					this.server.getGame().addPlayer(this.name);
@@ -255,6 +265,15 @@ public class ServerThread extends Thread {
 				server.getGame().notify();
 			}
 		} 
+		//Handle Exit
+		else if(infos[0].equals("Exit")) {
+			if(this.server.getGame().getIsStart()) {
+				//To be implemented
+			}else {
+				this.server.playerExit(this.inGameId);
+			}
+			
+		}
 	}
 
 	/**
@@ -266,15 +285,14 @@ public class ServerThread extends Thread {
 			while (in.hasNext()) {
 				String request = in.nextLine().trim();
 				System.out.println("Receiving Client request :" + request);
-				if(request.equals("Exit"))
-					break;
 				try {
 					parseInfo(request);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				if(request.equals("Exit"))
+					break;
 			}
-			server.getConnectedClients().remove(this);
 		}).start();
 	}
 
@@ -298,6 +316,11 @@ public class ServerThread extends Thread {
 	 */
 	public void send(String info) {
 		out.println(info);
+	}
+	public void sendCurrentPlayerProfile() {
+		for (int i = 0; i < this.server.getGame().getPlayers().size(); i++) {
+			this.send("Player " + i + " " + this.server.getGame().getPlayers().get(i).getName());
+		}
 	}
 
 }

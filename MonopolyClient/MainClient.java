@@ -155,6 +155,11 @@ public class MainClient {
 				Platform.runLater(() -> gui.setGameDeskPage());
 			else if(infos[1].equals("2"))
 				Platform.runLater(() -> gui.getLoginPage().accountOnline());
+			else if(infos[1].equals("3"))
+				Platform.runLater(()-> gui.getLoginPage().gameIsStart());
+			else if(infos[1].equals("4")) {
+				Platform.runLater(()->gui.getLoginPage().gameDeskFull());
+			}
 			else {
 				Platform.runLater(() -> gui.getLoginPage().loginFailed());
 			}
@@ -275,6 +280,9 @@ public class MainClient {
 		}
 		else if(infos[0].equals("Id")) {
 			this.Id=Integer.parseInt(infos[1]);
+		}
+		else if(infos[0].equals("ResetPlayer")) {
+			this.players = new LinkedList<>();
 		}
 	}
 	/**

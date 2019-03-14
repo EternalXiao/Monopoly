@@ -124,4 +124,12 @@ public class LoginPage {
 		this.prompt.setText("Account is already online");
 		this.prompt.setTextFill(Color.RED);
 	}
+	public void gameIsStart() {
+		this.prompt.setText("Game is already start");
+		this.prompt.setTextFill(Color.RED);
+	}
+	public void gameDeskFull() {
+		this.prompt.setText("Game desk is already full");
+		this.prompt.setTextFill(Color.RED);
+	}
 }

@@ -10,6 +10,7 @@ public class Game {
 	private LinkedList<Player> players;
 	private int countRound;
 	private boolean isEnd;
+	private boolean isStart;
 	private int alivePlayers;
 	// temporary
 	private MainServer server;
@@ -20,6 +21,7 @@ public class Game {
 		this.players = new LinkedList<>();
 		this.currentPlayer = 0;
 		this.server = server;
+		
 	}
 
 	public int getCurrentPlayer() {
@@ -32,6 +34,12 @@ public class Game {
 
 	public boolean getIsEnd() {
 		return this.isEnd;
+	}
+	public boolean getIsStart() {
+		return this.isStart;
+	}
+	public void setIsStart(boolean isStart) {
+		this.isStart=isStart;
 	}
 
 	public Block[] getMap() {
