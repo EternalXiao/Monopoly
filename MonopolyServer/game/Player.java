@@ -246,5 +246,12 @@ public class Player {
 		else 
 			return 3;
 	}
-
+	public void inDebt() {
+		this.setAlive(false);
+		for(Property property:this.ownedProperties) {
+			property.setOwned(false);
+			property.setOwner(null);
+		}
+		this.ownedProperties.clear();
+	}
 }

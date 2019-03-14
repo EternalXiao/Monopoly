@@ -135,12 +135,12 @@ public class Game {
 		case Tax: {
 			Tax tax = (Tax) block;
 			player.payMoney(tax.getTax());
-			server.sendAll("System "+player.getInGameId()+ " paid "+tax.getTax()+"£");
+			server.sendSystemPayTax(player.getName(), tax.getTax());
 			server.sendUpdateMoney(player.getInGameId(), player.getMoney());
 			break;
 		}
 		case GoToJail: {
-			server.sendAll("System "+player.getInGameId()+" is sent to jail (Skip a round)");
+			server.sendSystemNormalMessage(player.getName(), "is sent to jail (Skip a round)");
 			player.setInJail(true);
 		}
 		default:
@@ -174,10 +174,8 @@ public class Game {
 				currentPlayerThread.send("YourTurn");
 				currentPlayerThread.send("RollDice");
 				this.waitDecision();
-//				dice1 = Dice.getDiceNum();
-//				dice2 = Dice.getDiceNum();
-				dice1 =2 ;
-				dice2 =3;
+				dice1 = Dice.getDiceNum();
+				dice2 = Dice.getDiceNum();
 				diceNum = dice1 + dice2;
 				server.sendAll("Update Dice " + dice1 + " " + dice2);
 				System.out.println(player.getInGameId() + " roll out " + diceNum);
@@ -199,8 +197,10 @@ public class Game {
 				currentPlayerThread.send("FreeAction");
 				this.waitDecision();
 				if (player.getMoney() < 0) {
-					player.setAlive(false);
-					server.sendUpdateAlive(player.getInGameId(), 0);
+					//player.setAlive(false);
+					//server.sendUpdateAlive(player.getInGameId(), 0);
+					player.inDebt();
+					this.server.sendInDebtPlayer(player.getInGameId());
 					this.alivePlayers--;
 				}
 			}

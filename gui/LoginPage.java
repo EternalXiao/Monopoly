@@ -28,7 +28,7 @@ public class LoginPage {
 	private PasswordField passwordField = new PasswordField();
 	private Text usernameText = new Text("Username:");
 	private Text passwordText = new Text("Password:");
-	private Image loginLogo = new Image("file:src/image/monopoly.png");
+	private Image loginLogo = new Image(ClientStage.IMAGEURL + "monopoly.png");
 	private ImageView loginLogoView = new ImageView(loginLogo);
 	private GridPane gridPane;
 	private Scene scene;
@@ -100,16 +100,28 @@ public class LoginPage {
 		this.signUp.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			this.clientStage.setSignUpPage();
 		});
-		this.signUp.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
-			this.signUp.setStyle("-fx-font-weight: bold");
-		});
-		this.signUp.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
-			this.signUp.setStyle("-fx-font-weight:regular");
-		});
+
+//		this.signUp.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
+////			this.signUp.setStyle("font-weight: bold");
+//			this.signUp.setId("bold-label");
+//		});
+//		this.signUp.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+//			this.signUp.setStyle("font-weight:regular");
+//			this.signUp.setId("font-size");
+//		});
 		exit.setOnAction(e -> {
 			System.exit(1);
 		});
 		scene = new Scene(gridPane);
+		/**
+		 * 美化
+		 */
+		login.getStyleClass().add("button-login");
+		usernameText.getStyleClass().add("text-general");
+		passwordText.getStyleClass().add("text-general");
+		usernameField.getStyleClass().add("text-field");
+		signUp.getStyleClass().add("label-signUp");
+		scene.getStylesheets().add("gui/beautifulThing.css");
 	}
 
 	public Scene getScene() {
@@ -132,4 +144,5 @@ public class LoginPage {
 		this.prompt.setText("Game desk is already full");
 		this.prompt.setTextFill(Color.RED);
 	}
+
 }

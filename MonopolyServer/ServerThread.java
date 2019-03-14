@@ -268,7 +268,8 @@ public class ServerThread extends Thread {
 		//Handle Exit
 		else if(infos[0].equals("Exit")) {
 			if(this.server.getGame().getIsStart()) {
-				//To be implemented
+				this.player.inDebt();
+				this.server.sendInDebtPlayer(this.inGameId);
 			}else {
 				this.server.playerExit(this.inGameId);
 			}

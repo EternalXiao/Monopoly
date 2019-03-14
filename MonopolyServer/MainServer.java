@@ -181,10 +181,13 @@ public class MainServer {
 		this.sendAll("SystemMessage "+payer+" paid "+receiver +" "+amount);
 	}
 	public void sendSystemPayTax(String payer,int amount) {
-		this.sendAll("SystemMessage "+payer+" paid "+amount);
+		this.sendAll("SystemMessage "+payer+" paid "+amount+"£");
 	}
 	public void sendResetPlayer() {
 		this.sendAll("ResetPlayer");
+	}
+	public void sendInDebtPlayer(int playerId) {
+		this.sendAll("InDebt "+playerId);
 	}
 	public void playerExit(int playerId) {
 		for(int i=playerId+1;i<this.connectedClients.size();i++) {

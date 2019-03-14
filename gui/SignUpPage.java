@@ -30,7 +30,7 @@ public class SignUpPage {
 	private Text usernameText = new Text("Username:");
 	private Text passwordText = new Text("Password:");
 	private Text nicknameText = new Text("Nickname:");
-	private Image signUpLogo = new Image("file:src/image/monopoly.png");
+	private Image signUpLogo = new Image(ClientStage.IMAGEURL + "monopoly.png");
 	private ImageView signUpLogoView = new ImageView(signUpLogo);
 	private GridPane gridPane = new GridPane();
 	private MainClient client;
@@ -53,12 +53,12 @@ public class SignUpPage {
 		this.login.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			this.clientStage.setLoginPage();
 		});
-		this.login.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
-			this.login.setStyle("-fx-font-weight:bold");
-		});
-		this.login.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
-			this.login.setStyle("-fx-font-weight:regular");
-		});
+//		this.login.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
+//			this.login.setStyle("-fx-font-weight:bold");
+//		});
+//		this.login.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+//			this.login.setStyle("-fx-font-weight:regular");
+//		});
 		this.signUp.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()
 					|| nicknameField.getText().isEmpty()) {
@@ -111,6 +111,17 @@ public class SignUpPage {
 		this.gridPane.add(exit, 1, 6);
 
 		this.scene = new Scene(this.gridPane);
+
+		signUp.getStyleClass().add("button-SignUp");
+		usernameText.getStyleClass().add("text-general");
+		passwordText.getStyleClass().add("text-general");
+		nicknameText.getStyleClass().add("text-general");
+
+		usernameField.getStyleClass().add("text-field");
+		nicknameField.getStyleClass().add("text-field");
+		login.getStyleClass().add("label-back");
+		scene.getStylesheets().add("gui/SignUpPage.css");
+
 	}
 
 	public Scene getScene() {

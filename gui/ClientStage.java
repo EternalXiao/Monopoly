@@ -1,6 +1,7 @@
 package gui;
 
 import MonopolyClient.MainClient;
+import MonopolyClient.game.Block;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,10 +14,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class ClientStage extends Stage {
-
+	public static final String IMAGEURL = "file:src/image/";
 	private LoginPage loginPage;
 	private SignUpPage signUpPage;
 	private MainGameDesk mainGameDesk;
@@ -59,6 +61,19 @@ public class ClientStage extends Stage {
 		this.setScene(mainGameDesk.scene);
 	}
 
+	public static void setMapBlockAlert(String blockName){
+		Stage alertStage = new Stage();
+		/**
+		 * 禁止选择其它窗口
+		 */
+		alertStage.initModality(Modality.APPLICATION_MODAL);
+		alertStage.setTitle(blockName);
+		MapBlockAlert mapBlockAlert = new MapBlockAlert(blockName);
+		alertStage.setScene(mapBlockAlert.scene);
+		alertStage.showAndWait();
+
+	}
+
 	/***********************************************************************************************************************/
 	/** Used by current class **/
 	/***********************************************************************************************************************/
@@ -76,5 +91,4 @@ public class ClientStage extends Stage {
 	/***********************************************************************************************************************/
 	/** Used by MainClient class **/
 	/***********************************************************************************************************************/
-
 }

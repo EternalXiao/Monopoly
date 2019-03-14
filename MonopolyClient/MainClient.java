@@ -284,6 +284,10 @@ public class MainClient {
 		else if(infos[0].equals("ResetPlayer")) {
 			this.players = new LinkedList<>();
 		}
+		else if(infos[0].equals("InDebt")) {
+			this.players.get(Integer.parseInt(infos[1])).inDebt();
+			//gui update
+		}
 	}
 	/**
 	 * This method is to send message to the server

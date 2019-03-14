@@ -7,14 +7,6 @@ import java.util.Properties;
 import gui.*;
 
 import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class ClientApplication extends Application {
@@ -22,7 +14,7 @@ public class ClientApplication extends Application {
 	public void start(Stage stage) throws Exception {
 		String ip = "";
 		int port = 0;
-		try (FileInputStream in = new FileInputStream(new File("/Users/QWEJKLJKL/Dropbox/group16/MonopolyClient/server.properties"))) {
+		try (FileInputStream in = new FileInputStream(new File("src/MonopolyClient/server.properties"))) {
 			Properties pro = new Properties();
 			pro.load(in);
 			ip = pro.getProperty("ip");
