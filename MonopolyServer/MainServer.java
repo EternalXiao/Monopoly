@@ -156,9 +156,19 @@ public class MainServer {
 			sendAll("GameOver");
 		}).start();
 	}
+	/**
+	 * This method is to send the update message of a player's money to all the clients
+	 * @param playerId the id of corresponding player to be update
+	 * @param money the updated money
+	 */
 	public void sendUpdateMoney(int playerId,int money) {
 		this.sendAll("Update Money "+playerId + " "+money);
 	}
+	/**
+	 * 
+	 * @param playerId
+	 * @param position
+	 */
 	public void sendUpdatePosition(int playerId,int position) {
 		this.sendAll("Update Position "+playerId+ " "+position);
 	}
@@ -196,6 +206,7 @@ public class MainServer {
 		}
 		this.game.getPlayers().remove(playerId);
 		this.connectedClients.remove(playerId);
+		this.sendAllCurrentPlayerProfile();
 	}
 	public void sendAllCurrentPlayerProfile() {
 		this.sendResetPlayer();

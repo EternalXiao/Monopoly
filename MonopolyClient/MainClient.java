@@ -288,6 +288,9 @@ public class MainClient {
 			this.players.get(Integer.parseInt(infos[1])).inDebt();
 			//gui update
 		}
+		else if(infos[0].equals("HeartBeat")) {
+			this.send("HeartBeat");
+		}
 	}
 	/**
 	 * This method is to send message to the server

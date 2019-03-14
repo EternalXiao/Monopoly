@@ -31,10 +31,10 @@ public class ClientStage extends Stage {
 		this.setResizable(false);
 		this.setLoginPage();
 		this.show();
-		this.setOnCloseRequest(e->{
-			client.send("Exit");
-			this.close();
-		});
+//		this.setOnCloseRequest(e->{
+//			client.send("Exit");
+//			this.close();
+//		});
 	}
 	public LoginPage getLoginPage() {
 		return this.loginPage;

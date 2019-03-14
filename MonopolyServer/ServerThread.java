@@ -22,12 +22,14 @@ public class ServerThread extends Thread {
 	private int uid;
 	private boolean isLoggedIn;
 	private Player player;
+	private boolean inContact;
 
 	public ServerThread(Socket client, Connection dbCon, MainServer server) {
 		this.client = client;
 		this.dbCon = dbCon;
 		this.server = server;
 		this.isLoggedIn = false;
+		this.inContact = true;
 		try {
 			out = new PrintStream(client.getOutputStream());
 			in = new Scanner(client.getInputStream());
@@ -63,6 +65,7 @@ public class ServerThread extends Thread {
 	public void run() {
 		System.out.println("Connecting from : " + this.client.getInetAddress());
 		this.listenClient();
+		this.sendHeartBeat();
 	}
 
 	/**
@@ -271,9 +274,13 @@ public class ServerThread extends Thread {
 				this.player.inDebt();
 				this.server.sendInDebtPlayer(this.inGameId);
 			}else {
+				if(!this.isLoggedIn)
+					return ;
 				this.server.playerExit(this.inGameId);
 			}
-			
+		}
+		else if(infos[0].equals("HeartBeat")) {
+			this.inContact=true;
 		}
 	}
 
@@ -323,5 +330,22 @@ public class ServerThread extends Thread {
 			this.send("Player " + i + " " + this.server.getGame().getPlayers().get(i).getName());
 		}
 	}
-
+	public void sendHeartBeat() {
+		new Thread(()->{
+			while(this.inContact) {
+				this.send("HeartBeat");
+				this.inContact=false;
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				this.parseInfo("Exit");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}).start();
+	}
 }
