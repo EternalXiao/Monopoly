@@ -282,6 +282,7 @@ public class ServerThread extends Thread {
 		else if(infos[0].equals("HeartBeat")) {
 			this.inContact=true;
 		}
+		
 	}
 
 	/**
@@ -336,7 +337,7 @@ public class ServerThread extends Thread {
 				this.send("HeartBeat");
 				this.inContact=false;
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(15000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

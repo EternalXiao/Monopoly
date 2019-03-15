@@ -177,6 +177,7 @@ public class Street extends Property {
                         totalRent = 250;
                         break;
                 }
+                break;
             }
             case "Whitechapel Road": {
                 switch (this.houseNum) {
@@ -199,6 +200,7 @@ public class Street extends Property {
                         totalRent = 450;
                         break;
                 }
+                break;
             }
             case "The Angel Islington": {
                 switch (this.houseNum) {
@@ -221,6 +223,7 @@ public class Street extends Property {
                         totalRent = 550;
                         break;
                 }
+                break;
             }
             case "Euston Road": {
                 switch (this.houseNum) {
@@ -243,6 +246,7 @@ public class Street extends Property {
                         totalRent = 550;
                         break;
                 }
+                break;
             }
             case "Pentonville Road": {
                 switch (this.houseNum) {
@@ -265,6 +269,7 @@ public class Street extends Property {
                         totalRent = 6000;
                         break;
                 }
+                break;
             }
             case "Pall Mall": {
                 switch (this.houseNum) {
@@ -287,6 +292,7 @@ public class Street extends Property {
                         totalRent = 750;
                         break;
                 }
+                break;
             }
             case "Whitehall": {
                 switch (this.houseNum) {
@@ -309,6 +315,7 @@ public class Street extends Property {
                         totalRent = 750;
                         break;
                 }
+                break;
             }
             case "Northumberland Avenue": {
                 switch (this.houseNum) {
@@ -331,6 +338,7 @@ public class Street extends Property {
                         totalRent = 900;
                         break;
                 }
+                break;
             }
             case "Bow Street": {
                 switch (this.houseNum) {
@@ -353,6 +361,7 @@ public class Street extends Property {
                         totalRent = 950;
                         break;
                 }
+                break;
             }
             case "Marlborough Street": {
                 switch (this.houseNum) {
@@ -375,6 +384,7 @@ public class Street extends Property {
                         totalRent = 950;
                         break;
                 }
+                break;
             }
             case "Vine Street": {
                 switch (this.houseNum) {
@@ -397,6 +407,7 @@ public class Street extends Property {
                         totalRent = 1000;
                         break;
                 }
+                break;
             }
             case "The Strand": {
                 switch (this.houseNum) {
@@ -419,6 +430,7 @@ public class Street extends Property {
                         totalRent = 1050;
                         break;
                 }
+                break;
             }
             case "Fleet Street": {
                 switch (this.houseNum) {
@@ -441,6 +453,7 @@ public class Street extends Property {
                         totalRent = 1050;
                         break;
                 }
+                break;
             }
             case "Trafalgar Square": {
                 switch (this.houseNum) {
@@ -463,6 +476,7 @@ public class Street extends Property {
                         totalRent = 1100;
                         break;
                 }
+                break;
             }
             case "Leicester Square": {
                 switch (this.houseNum) {
@@ -485,6 +499,7 @@ public class Street extends Property {
                         totalRent = 1150;
                         break;
                 }
+                break;
             }
             case "Coventry Street": {
                 switch (this.houseNum) {
@@ -507,6 +522,7 @@ public class Street extends Property {
                         totalRent = 1150;
                         break;
                 }
+                break;
             }
             case "Piccadilly": {
                 switch (this.houseNum) {
@@ -529,6 +545,7 @@ public class Street extends Property {
                         totalRent = 1200;
                         break;
                 }
+                break;
             }
             case "Regent Street": {
                 switch (this.houseNum) {
@@ -551,6 +568,7 @@ public class Street extends Property {
                         totalRent = 1275;
                         break;
                 }
+                break;
             }
             case "Oxford Street": {
                 switch (this.houseNum) {
@@ -573,6 +591,7 @@ public class Street extends Property {
                         totalRent = 1275;
                         break;
                 }
+                break;
             }
             case "Bond Street": {
                 switch (this.houseNum) {
@@ -595,6 +614,7 @@ public class Street extends Property {
                         totalRent = 1400;
                         break;
                 }
+                break;
             }
             case "Park Lane": {
                 switch (this.houseNum) {
@@ -617,6 +637,7 @@ public class Street extends Property {
                         totalRent = 1500;
                         break;
                 }
+                break;
             }
             case "Mayfair": {
                 switch (this.houseNum) {
@@ -639,6 +660,7 @@ public class Street extends Property {
                         totalRent = 2000;
                         break;
                 }
+                break;
             }
         }
         return totalRent;

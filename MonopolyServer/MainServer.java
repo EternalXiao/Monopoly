@@ -214,4 +214,7 @@ public class MainServer {
 			st.sendCurrentPlayerProfile();
 		}
 	}
+	public void sendGameOver() {
+		this.sendAll("GameOver");
+	}
 }

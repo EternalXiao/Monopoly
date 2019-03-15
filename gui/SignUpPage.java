@@ -41,7 +41,6 @@ public class SignUpPage {
 		this.client = client;
 		this.clientStage = clientStage;
 		gridPane.setAlignment(Pos.CENTER);
-		gridPane.setHgap(10);
 		gridPane.setVgap(10);
 		gridPane.setPadding(new Insets(10, 10, 10, 10));
 		this.login.setUnderline(true);

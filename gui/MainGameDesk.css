@@ -11,20 +11,45 @@
     -fx-font-style: italic;
 }
 
+.label-SystemMessage{
+    -fx-text-fill: #AB4642;
+    -fx-text-size: 25pt;
+    -fx-font-family: 'Lucida Bright';
+}
 .text-field{
     -fx-text-fill: #282828;
     -fx-font-weight: bold;
     -fx-font-style: italic;
+    -fx-border-radius: 50px;
 }
-
+.text-area{
+    -fx-text-fill: #383838;
+    -fx-font-weight: bold;
+    -fx-text-size: 12px;
+    -fx-border-radius: 50px;
+    -fx-font-family: 'Lucida Bright';
+}
 .text-general{
     -fx-fill: #FFFFFF;
     -fx-font-weight: bold;
 }
+
+
+.text-nickName{
+    -fx-font-weight: bold;
+    -fx-font-size: 10;
+    -fx-fill: #A16946;
+}
+.text-money{
+    -fx-font-weight: bold;
+    -fx-font-size: 10pt;
+    -fx-fill: #AB4642;
+}
+
 .button{
 
     -fx-background-color:#AB4642;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: #FFFF;
     -fx-background-radius: 6;
 }
 
@@ -32,22 +57,35 @@
     -fx-background-color:#A1B56C;
     -fx-text-fill: #FFFFFF;
     -fx-background-radius: 6;
+
 }
 
 .button-roll{
-    -fx-background-color:#A1B56C;
+    -fx-background-color:#DC9656;
     -fx-text-fill: #FFFFFF;
     -fx-background-radius: 6;
 }
 
 .button-endRound{
-    -fx-background-color:#A1B56C;
+    -fx-background-color:#AB4642;
     -fx-text-fill: #FFFFFF;
     -fx-background-radius: 6;
 }
 
-
-
 .button:hover{
     -fx-font-weight: bold;
+}
+
+
+.label-chatbox{
+    -fx-font-weight: bold;
+    -fx-text-size: 20pt;
+    -fx-font-family: 'Lucida Bright';
+}
+.label-rank{
+    -fx-font-weight: bold;
+    -fx-text-size: 20pt;
+    -fx-font-family: 'Lucida Bright';
+    -fx-text-fill: #F8F8F8;
+
 }

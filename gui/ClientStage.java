@@ -18,11 +18,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class ClientStage extends Stage {
+
 	public static final String IMAGEURL = "file:src/image/";
+
+
 	private LoginPage loginPage;
 	private SignUpPage signUpPage;
 	private MainGameDesk mainGameDesk;
-	private MainClient client;
+	private static MainClient client;
 
 	public ClientStage(MainClient client) {
 		this.client = client;
@@ -61,23 +64,32 @@ public class ClientStage extends Stage {
 		this.setScene(mainGameDesk.scene);
 	}
 
-	public static void setMapBlockAlert(String blockName){
+	public static void setMapBlockAlert(int pos){
 		Stage alertStage = new Stage();
 		/**
 		 * 禁止选择其它窗口
 		 */
 		alertStage.initModality(Modality.APPLICATION_MODAL);
-		alertStage.setTitle(blockName);
-		MapBlockAlert mapBlockAlert = new MapBlockAlert(blockName);
+		alertStage.setTitle(MainGameDesk.CELL_INFO[pos]);
+		MapBlockAlert mapBlockAlert = new MapBlockAlert(pos,client);
 		alertStage.setScene(mapBlockAlert.scene);
 		alertStage.showAndWait();
 
 	}
 
+	public void setWinAlert(){
+		Stage winAlertStage = new Stage();
+		winAlertStage.setTitle("Congratulations!*");
+		winAlertStage.initModality(Modality.APPLICATION_MODAL);
+		WinAlert winAlert = new WinAlert(client);
+		winAlertStage.setScene(winAlert.scene);
+		winAlertStage.showAndWait();
+	}
+
 	/***********************************************************************************************************************/
 	/** Used by current class **/
 	/***********************************************************************************************************************/
-	public static Node findElement(int row, int col, GridPane root) {
+	public static Node findElement(int col, int row, GridPane root) {
 		Node result = null;
 		for (Node node : root.getChildren()) {
 			if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {

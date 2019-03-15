@@ -140,7 +140,9 @@ public class Game {
 			break;
 		}
 		case GoToJail: {
+			player.setCurrentPosition(10);
 			server.sendSystemNormalMessage(player.getName(), "is sent to jail (Skip a round)");
+			server.sendUpdatePosition(player.getInGameId(), player.getCurrentPosition());
 			player.setInJail(true);
 		}
 		default:
@@ -165,7 +167,7 @@ public class Game {
 				player.setInJail(false);
 				server.sendSystemNormalMessage(player.getName(), "is in Jail. Skip a round.");
 				System.out.println("You are in jail, skip a round.");
-				this.currentPlayer++;
+				this.currentPlayer=(this.currentPlayer+1)%this.players.size();
 				return;
 			} else {
 				System.out.println("Player " + player.getInGameId() + "'s turn");

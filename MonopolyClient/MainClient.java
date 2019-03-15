@@ -21,12 +21,14 @@ public class MainClient {
 	private int Id;
 	private Block[] map;
 	private LinkedList<Player> players;
+	private boolean freeAction;
 
 	public MainClient(String serverIP, int port) {
 		this.serverIP = serverIP;
 		this.port = port;
 		this.connect();
 		this.players = new LinkedList<>();
+		this.freeAction=false;
 	}
 
 	public MainClient() {
@@ -60,7 +62,10 @@ public class MainClient {
 			return false;
 		}
 	}
-
+	public int getId() {
+		return this.Id;
+	}
+	
 	public Socket getClient() {
 		return this.client;
 	}
@@ -75,6 +80,12 @@ public class MainClient {
 
 	public LinkedList<Player> getPlayers() {
 		return this.players;
+	}
+	public boolean getFreeAction() {
+		return this.freeAction;
+	}
+	public void setFreeAction(boolean freeAction) {
+		this.freeAction=freeAction;
 	}
 	/**
 	 * This method sends login message,including username and password to the server
@@ -227,12 +238,14 @@ public class MainClient {
 			} else if (infos[1].equals("BlockOwner")) {
 				((Property)this.map[Integer.parseInt(infos[2])]).setOwner(this.players.get(Integer.parseInt(infos[3])));
 				Platform.runLater(()->{
-					MainGameDesk.setBlock(Integer.parseInt(infos[3]+1), Integer.parseInt(infos[2]));
+					MainGameDesk.setBlock(Integer.parseInt(infos[3])+1, Integer.parseInt(infos[2]));
 				});
 				
 				//gui update
 			} else if (infos[1].equals("BlockLevel")) {
 				((Street)this.map[Integer.parseInt(infos[2])]).setLevel(Integer.parseInt(infos[3]));
+				Platform.runLater(()-> MainGameDesk.setdHouse(Integer.parseInt(infos[3]), Integer.parseInt(infos[2])));
+					
 				//gui update
 			} else if (infos[1].equals("OwnedProperty")) {
 
@@ -274,6 +287,7 @@ public class MainClient {
 			});
 		}
 		else if(infos[0].equals("FreeAction")) {
+			this.freeAction = true;
 			Platform.runLater(()->{
 				MainGameDesk.getEndButton().setDisable(false);
 			});
@@ -290,6 +304,12 @@ public class MainClient {
 		}
 		else if(infos[0].equals("HeartBeat")) {
 			this.send("HeartBeat");
+		}
+		else if(infos[0].equals("GameOver")) {
+			Platform.runLater(()->{
+				gui.setWinAlert();
+			});
+			
 		}
 	}
 	/**
