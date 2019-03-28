@@ -1,10 +1,19 @@
 package MonopolyServer.game;
-
+/**
+ * This class is a subclass of Block which defines the property block
+ * It is characterised by three additional field variables, isOwned, owner and price
+ */
 public class Property extends Block {
-    private boolean isOwned;    // if it has owner
+    private boolean isOwned;    
     private Player owner;
     private int price;
-
+    /**
+     * Constructor for Property
+     * @param position the position of the block
+     * @param name the name of the block
+     * @param type the tyep of the block
+     * @param price the price of the block
+     */
     public Property(int position, String name, BlockType type, int price) {
         super(position, name, type);
         this.price = price;
@@ -31,7 +40,9 @@ public class Property extends Block {
     public int getPrice() {
         return price;
     }
-
+    /**
+     * Overriden method to determine whether two properties are the same
+     */
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

@@ -9,27 +9,35 @@ import java.sql.ResultSet;
 import java.util.Scanner;
 
 import MonopolyServer.game.*;
-
+import database.Database;
+/**
+ * This class create a thread to handle the issue with one client.
+ * It is characterised by the following field variables, client, server,
+ * out, in, inGameId, name, uid, isLoggedIn, player, inContact and connected
+ */
 public class ServerThread extends Thread {
 	private Socket client;
-	private Connection dbCon;
 	private MainServer server;
 	private PrintStream out;
 	private Scanner in;
-	// temp
 	private int inGameId;
 	private String name;
 	private int uid;
 	private boolean isLoggedIn;
 	private Player player;
 	private boolean inContact;
-
-	public ServerThread(Socket client, Connection dbCon, MainServer server) {
+	private boolean connected;
+	/**
+	 * Constructor for the ServerThread
+	 * @param client the client socket
+	 * @param server the main server
+	 */
+	public ServerThread(Socket client, MainServer server) {
 		this.client = client;
-		this.dbCon = dbCon;
 		this.server = server;
 		this.isLoggedIn = false;
 		this.inContact = true;
+		this.connected = true;
 		try {
 			out = new PrintStream(client.getOutputStream());
 			in = new Scanner(client.getInputStream());
@@ -42,6 +50,7 @@ public class ServerThread extends Thread {
 	public int getUid() {
 		return this.uid;
 	}
+
 	public Player getPlayer() {
 		return this.player;
 	}
@@ -60,6 +69,9 @@ public class ServerThread extends Thread {
 
 	/**
 	 * This is the override method which will be run once start method being called
+	 * A new thread will be created to listen to the client message. Meanwhile, this
+	 * thread will send heartbeat message to the client every five second to check client
+	 * online status
 	 */
 	@Override
 	public void run() {
@@ -69,96 +81,65 @@ public class ServerThread extends Thread {
 	}
 
 	/**
-	 * This method parses the message sent by the client The message are in the
-	 * following format: <message type> <message content> The first string
-	 * represents the message type. All the types are as follows: i: Login ii:
-	 * SignUp iii: Ready iv: RollDice v: NickName vi: Buy
+	 * This method parses the message sent by the client. The message are in the
+	 * following format: <message type> <message arguments>. For detailed specification
+	 * of the communication protocol, please refer to the report
 	 * 
-	 * Followed by message type, the length of the message content varies from their
-	 * type
-	 * 
-	 * i.Login The content of the Login comprises of two bits The first bit
-	 * represents the username of the client and the second is the password
-	 * 
-	 * ii.SignUp The content of the SignUp comprises of two bits The first bit
-	 * represents the username of the client and the second is the password
-	 * 
-	 * iii.Ready The ready message does not have content. It just toggle the ready
-	 * status of corresponding player
-	 * 
-	 * iv.RollDice This message does not have content. Once received this message,
-	 * the game will proceed to roll dice
-	 * 
-	 * v.NickName The NickName message contains one bit of content. This bit is the
-	 * nickname the clinet want to use
-	 * 
-	 * vi.Buy
-	 * 
-	 * @param info
+	 * @param info the message sent by the client
 	 * @throws Exception
 	 */
 	public void parseInfo(String info) throws Exception {
 		String[] infos = info.split(" ");
 		// Handle Login message
 		if (infos[0].equals("Login")) {
-			String login = "select uid,nickname from users where username = ? and password = ?";
-			PreparedStatement loginStatement = dbCon.prepareStatement(login);
-			loginStatement.setString(1, infos[1]);
-			loginStatement.setString(2, infos[2]);
-			ResultSet rs = loginStatement.executeQuery();
-			if (rs.next()) {
-				this.uid = rs.getInt(1);
-				this.name = rs.getString(2);
+			Database database = Database.getInstance();
+			if (database.login(infos[1], infos[2])) {
+				this.uid = database.getUid(infos[1]);
 				synchronized (this.server.getGame()) {
-					if(this.server.getGame().getIsStart()) {
+					if (this.server.getGame().getIsStart()) {
 						this.send("Login 3");
 						return;
 					}
-					if(this.server.getGame().getPlayers().size()==6) {
+					if (this.server.getGame().getPlayers().size() == 6) {
 						this.send("Login 4");
 						return;
 					}
-					//wrap latter
-					for (ServerThread st : this.server.getConnectedClients()) {
-						if (this.uid == st.getUid()) {
-							this.send("Login 2");
-							return;
-						}
+					if (this.server.checkOnline(this.uid)) {
+						this.send("Login 2");
+						return;
 					}
+
+					this.name = database.getNickName(this.uid);
 					this.server.getConnectedClients().add(this);
 					this.isLoggedIn = true;
 					this.send("Login 1");
+					String lastLogin = database.getlastlogintime(this.uid);
+					System.out.println(lastLogin);
+					database.updatelogintime(this.uid);
+					this.send("LastLogin " + lastLogin);
 					this.sendCurrentPlayerProfile();
 					this.inGameId = server.getGame().getPlayers().size();
-					this.send("Id " + this.inGameId);
+					//this.send("Id " + this.inGameId);
 					this.server.getGame().addPlayer(this.name);
 					this.server.sendAll("Player " + this.inGameId + " " + this.name);
 					this.player = this.server.getGame().getPlayers().get(this.inGameId);
 				}
-			} else
+			} else {
 				this.send("Login 0");
+			}
 		}
 		// Handle SignUp message
 		else if (infos[0].equals("SignUp")) {
-			String signUpVeriUsername = "select uid from users where username = ?";
-			String signUpVeriNickname = "select uid from users where nickname = ?";
-			PreparedStatement signUpVeriStatement1 = dbCon.prepareStatement(signUpVeriUsername);
-			signUpVeriStatement1.setString(1, infos[1]);
-			PreparedStatement signUpVeriStatement2 = dbCon.prepareStatement(signUpVeriNickname);
-			signUpVeriStatement2.setString(1, infos[3]);
-			ResultSet rs1 = signUpVeriStatement1.executeQuery();
-			ResultSet rs2 = signUpVeriStatement2.executeQuery();
-			if (rs1.next()) {
+			Database database = Database.getInstance();
+			String username = infos[1];
+			String password = infos[2];
+			String nickname = infos[3];
+			if (!database.checkUsernameAvailable(username)) {
 				this.send("SignUp 0");
-			} else if (rs2.next()) {
+			} else if (!database.checkNicknameAvailable(nickname)) {
 				this.send("SignUp 1");
 			} else {
-				String SignUp = "insert into users (username,password,nickname,win,lose,score) values (?,?,?,0,0,0)";
-				PreparedStatement signUpStatement = dbCon.prepareStatement(SignUp);
-				signUpStatement.setString(1, infos[1]);
-				signUpStatement.setString(2, infos[2]);
-				signUpStatement.setString(3, infos[3]);
-				signUpStatement.executeUpdate();
+				database.signUp(username, password, nickname);
 				this.send("SignUp 2");
 			}
 		}
@@ -180,109 +161,108 @@ public class ServerThread extends Thread {
 				server.getGame().notify();
 			}
 		}
-		// Handle NickName message
-		else if (infos[0].equals("NickName")) {
-			String nickName = "select count(*) from users where nickname = ?";
-			PreparedStatement nickNameStatement = dbCon.prepareStatement(nickName);
-			nickNameStatement.setString(1, infos[1]);
-			ResultSet rs = nickNameStatement.executeQuery();
-			rs.next();
-			if (rs.getInt(1) == 0) {
-				this.name = infos[1];
-				this.send("NickName 1");
-				String insertNickName = "update users set nickname = ? where uid = ?";
-				PreparedStatement insertNickNameStatement = dbCon.prepareStatement(insertNickName);
-				insertNickNameStatement.setString(1, infos[1]);
-				insertNickNameStatement.setInt(2, this.uid);
-				insertNickNameStatement.executeQuery();
-
-			} else {
-				this.send("NickName 0");
-			}
-
-		}
 		// Handle Buy message
 		else if (infos[0].equals("Buy")) {
 			if (infos[1].equals("1")) {
-				if(player.buy((Property) server.getGame().getMap()[player.getCurrentPosition()])) {
+				if (player.buy((Property) server.getGame().getMap()[player.getCurrentPosition()])) {
 					server.sendSystemNormalMessage(this.name,
-						"bought " + server.getGame().getMap()[player.getCurrentPosition()].getName());
+							"bought " + server.getGame().getMap()[player.getCurrentPosition()].getName());
 					server.sendUpdateMoney(this.inGameId, player.getMoney());
 					server.sendUpdateOwner(player.getCurrentPosition(), player.getInGameId());
-				}
-				else {
+				} else {
 					this.send("SystemMessage Do not have enough money");
-					return;
 				}
 			}
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
-			
-		} 
-		//Handle ChatMessage message
+
+		}
+		// Handle ChatMessage message
 		else if (infos[0].equals("ChatMessage")) {
 			server.sendChatMessage(this.name, info.substring(11));
 		}
-		//Handle Sell Message
-		else if(infos[0].equals("Sell")) {
-			int sellResult = this.player.sell((Property)this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
-			if(sellResult==0) {
+		// Handle Sell Message
+		else if (infos[0].equals("Sell")) {
+			int sellResult = this.player.sell((Property) this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
+			if (sellResult == 0) {
 				this.send("SystemMessage This is not your property");
-			}
-			else if(sellResult==1) {
+			} else if (sellResult == 1) {
 				this.send("SystemMessge You must degrade evenly");
-			}
-			else if(sellResult==2) {
-				server.sendSystemNormalMessage(this.name, "degraded "+this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
+			} else if (sellResult == 2) {
+				server.sendSystemNormalMessage(this.name,
+						"degraded " + this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
 				server.sendUpdateMoney(this.inGameId, this.player.getMoney());
-				server.sendUpdateLevel(Integer.parseInt(infos[1]), ((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
-			}
-			else {
-				server.sendSystemNormalMessage(this.name, "sold "+this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
+				server.sendUpdateLevel(Integer.parseInt(infos[1]),
+						((Street) this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
+			} else {
+				server.sendSystemNormalMessage(this.name,
+						"sold " + this.server.getGame().getMap()[Integer.parseInt(infos[1])].getName());
 				server.sendUpdateMoney(this.inGameId, this.player.getMoney());
 				server.sendUpdateOwner(Integer.parseInt(infos[1]), -1);
 			}
 		}
-		//Handle Build message
-		else if(infos[0].equals("Build")) {
-			int buildResult = this.player.buildHouse((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
-			if(buildResult ==0) {
+		// Handle Build message
+		else if (infos[0].equals("Build")) {
+			int buildResult = this.player
+					.buildHouse((Street) this.server.getGame().getMap()[Integer.parseInt(infos[1])]);
+			if (buildResult == 0) {
 				this.send("SystemMessage This is not your property");
-			}
-			else if(buildResult==1) {
+			} else if (buildResult == 1) {
 				this.server.sendSystemNormalMessage(this.name, "upgraded house");
 				this.server.sendUpdateMoney(this.inGameId, this.player.getMoney());
-				this.server.sendUpdateLevel(Integer.parseInt(infos[1]), ((Street)this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
-			}
-			else if(buildResult==2){
+				this.server.sendUpdateLevel(Integer.parseInt(infos[1]),
+						((Street) this.server.getGame().getMap()[Integer.parseInt(infos[1])]).getHouseNum());
+			} else if (buildResult == 2) {
 				this.send("SystemMessage You do not have enough money");
+			}else if(buildResult==3) {
+				this.send("SystemMessage You should build house evenly");
 			}
-			else {
+			else if(buildResult ==4){
 				this.send("SystemMessage You do not own this group");
+			}else {
+				this.send("SystemMessage House is already in max level");
 			}
 		}
-		//Handle EndRound
+		// Handle EndRound
 		else if (infos[0].equals("EndRound")) {
 			synchronized (server.getGame()) {
 				server.getGame().notify();
 			}
-		} 
-		//Handle Exit
-		else if(infos[0].equals("Exit")) {
-			if(this.server.getGame().getIsStart()) {
-				this.player.inDebt();
-				this.server.sendInDebtPlayer(this.inGameId);
-			}else {
-				if(!this.isLoggedIn)
-					return ;
-				this.server.playerExit(this.inGameId);
+		}
+		// Handle UpdateFinish
+		else if (infos[0].equals("UpdateFinish")) {
+			synchronized (server.getGame()) {
+				this.server.getGame().notify();
 			}
 		}
-		else if(infos[0].equals("HeartBeat")) {
-			this.inContact=true;
+		// Handle Exit
+		else if (infos[0].equals("Exit")) {
+			if (this.connected) {
+				System.out.println(this.name + " exit");
+				this.connected = false;
+				if (this.server.getGame().getIsStart()) {
+					this.server.getGame().getInGameQuit().add(this.inGameId);
+					this.server.getGame().clearPlayerProperties(this.inGameId);
+					this.player.inDebt();
+					this.server.getGame().decreAlivePlayers();
+					this.server.sendInDebtPlayer(this.inGameId);
+					System.out.println(this.inGameId + " "+this.server.getGame().getCurrentPlayer());
+					if (this.server.getGame().getCurrentPlayer() == this.inGameId) {
+						synchronized (this.server.getGame()) {
+							this.server.getGame().notify();
+						}
+					}
+				} else {
+					if (!this.isLoggedIn)
+						return;
+					this.server.playerExit(this.inGameId);
+				}
+			}
+		} else if (infos[0].equals("HeartBeat")) {
+			this.inContact = true;
 		}
-		
+
 	}
 
 	/**
@@ -293,14 +273,17 @@ public class ServerThread extends Thread {
 		new Thread(() -> {
 			while (in.hasNext()) {
 				String request = in.nextLine().trim();
-				System.out.println("Receiving Client request :" + request);
+				if (!request.equals("HeartBeat"))
+					System.out.println("Receiving Client request :" + request);
 				try {
 					parseInfo(request);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if(request.equals("Exit"))
+				if (request.equals("Exit")) {
+					this.close();
 					break;
+				}
 			}
 		}).start();
 	}
@@ -326,27 +309,35 @@ public class ServerThread extends Thread {
 	public void send(String info) {
 		out.println(info);
 	}
+	/**
+	 * This method is to send all the current player profiles to the client
+	 */
 	public void sendCurrentPlayerProfile() {
 		for (int i = 0; i < this.server.getGame().getPlayers().size(); i++) {
 			this.send("Player " + i + " " + this.server.getGame().getPlayers().get(i).getName());
+			if(this.server.getGame().getPlayers().get(i).isReady())
+				this.send("Ready "+ i+" "+"1");
 		}
 	}
+	/**
+	 * This method is to send heart beat message to the client every five seconds
+	 * and check whether the client has responded
+	 */
 	public void sendHeartBeat() {
-		new Thread(()->{
-			while(this.inContact) {
-				this.send("HeartBeat");
-				this.inContact=false;
-				try {
-					Thread.sleep(15000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+		while (this.inContact) {
+			this.send("HeartBeat");
+			this.inContact = false;
 			try {
-				this.parseInfo("Exit");
-			} catch (Exception e) {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}).start();
+		}
+		try {
+			this.parseInfo("Exit");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 }

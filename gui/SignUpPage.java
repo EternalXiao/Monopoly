@@ -37,6 +37,12 @@ public class SignUpPage {
 	private ClientStage clientStage;
 	private Scene scene;
 
+	/**
+	 * build the scene of the SignUpPage
+	 * 
+	 * @param client      the client object of the program
+	 * @param clientStage main stage of the game
+	 */
 	public SignUpPage(MainClient client, ClientStage clientStage) {
 		this.client = client;
 		this.clientStage = clientStage;
@@ -44,6 +50,7 @@ public class SignUpPage {
 		gridPane.setVgap(10);
 		gridPane.setPadding(new Insets(10, 10, 10, 10));
 		this.login.setUnderline(true);
+		GridPane.setHalignment(prompt, HPos.CENTER);
 		GridPane.setHalignment(login, HPos.LEFT);
 		this.signUpLogoView.setFitWidth(400);
 		this.signUpLogoView.setPreserveRatio(true);
@@ -52,12 +59,6 @@ public class SignUpPage {
 		this.login.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			this.clientStage.setLoginPage();
 		});
-//		this.login.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
-//			this.login.setStyle("-fx-font-weight:bold");
-//		});
-//		this.login.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
-//			this.login.setStyle("-fx-font-weight:regular");
-//		});
 		this.signUp.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()
 					|| nicknameField.getText().isEmpty()) {
@@ -69,10 +70,20 @@ public class SignUpPage {
 				this.prompt.setTextFill(Color.RED);
 				this.usernameField.clear();
 				this.passwordField.clear();
+				this.nicknameField.clear();
+			} else if (!usernameField.getText().matches("[a-zA-z0-9]+")
+					|| !passwordField.getText().matches("[a-zA-Z0-9]+")
+					|| !nicknameField.getText().matches("[a-zA-Z0-9]+")) {
+				this.prompt.setText("Only number and alphabetic characters are acceptable");
+				this.prompt.setTextFill(Color.RED);
+				this.usernameField.clear();
+				this.passwordField.clear();
+				this.nicknameField.clear();
 			} else {
 				this.client.signUp(usernameField.getText(), passwordField.getText(), nicknameField.getText());
 				this.usernameField.clear();
 				this.passwordField.clear();
+				this.nicknameField.clear();
 			}
 		});
 		this.signUp.setOnKeyPressed(e -> {
@@ -87,10 +98,20 @@ public class SignUpPage {
 					this.prompt.setTextFill(Color.RED);
 					this.usernameField.clear();
 					this.passwordField.clear();
+					this.nicknameField.clear();
+				} else if (!usernameField.getText().matches("[a-zA-Z0-9]+")
+						|| !passwordField.getText().matches("[a-zA-Z0-9]+")
+						|| !nicknameField.getText().matches("[a-zA-Z0-9]+")) {
+					this.prompt.setText("Only number and alphabetic characters are acceptable");
+					this.prompt.setTextFill(Color.RED);
+					this.usernameField.clear();
+					this.passwordField.clear();
+					this.nicknameField.clear();
 				} else {
 					this.client.signUp(usernameField.getText(), passwordField.getText(), nicknameField.getText());
 					this.usernameField.clear();
 					this.passwordField.clear();
+					this.nicknameField.clear();
 				}
 			}
 		});
@@ -127,18 +148,35 @@ public class SignUpPage {
 		return this.scene;
 	}
 
+	/**
+	 * inform the player that the account has been signed up
+	 */
 	public void signUpSuccess() {
 		this.prompt.setText("Account created");
 		this.prompt.setTextFill(Color.GREEN);
 	}
 
+	/**
+	 * inform the player that Username has been used
+	 */
 	public void usernameUsed() {
 		this.prompt.setText("Username has been used");
 		this.prompt.setTextFill(Color.RED);
 	}
 
+	/**
+	 * inform the player that Nickname has been used
+	 */
 	public void nicknameUsed() {
 		this.prompt.setText("Nickname has been used");
+		this.prompt.setTextFill(Color.RED);
+	}
+
+	/**
+	 * inform the player that Server connection timeout
+	 */
+	public void connectionTimeout() {
+		this.prompt.setText("Server connection timeout");
 		this.prompt.setTextFill(Color.RED);
 	}
 }

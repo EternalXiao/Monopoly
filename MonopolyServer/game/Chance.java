@@ -5,66 +5,96 @@ import java.util.Random;
 
 import MonopolyServer.MainServer;
 
+/**
+ * This class is to define the chance card of the chance block. It defines two
+ * field variable name and step.
+ */
 class CardChance {
-    private String name;
-    private int step;
+	private String name;
+	private int step;
 
-    public CardChance(String name, int step) {
-        this.name = name;
-        this.step = step;
-    }
+	/**
+	 * Constructor for CardChance
+	 * 
+	 * @param name the name of the chance card
+	 * @param step the move relative to current block
+	 */
+	public CardChance(String name, int step) {
+		this.name = name;
+		this.step = step;
+	}
 
-    public String getName() {
-        return this.name;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public int getStep() {
-        return this.step;
-    }
+	public int getStep() {
+		return this.step;
+	}
 }
 
+/**
+ * This class is a subclass of Block which defines the chance block on board It
+ * is characterised by two additional field variablesl, card and rand
+ */
 public class Chance extends Block {
-    private ArrayList<CardChance> card;
-    private Random rand;
+	private ArrayList<CardChance> card;
+	private Random rand;
 
-    public Chance(int position, String name, BlockType type) {
-        super(position, name, type);
-        this.card = new ArrayList<>();
-        this.rand = new Random();
+	/**
+	 * Constructor for Chance
+	 * 
+	 * @param position the position of this block
+	 * @param name     the name of the block
+	 * @param type     the type of the block
+	 */
+	public Chance(int position, String name, BlockType type) {
+		super(position, name, type);
+		this.card = new ArrayList<>();
+		this.rand = new Random();
 
-        card.add(new CardChance("forward3", 3));
-        card.add(new CardChance("goback3",-3));
-        card.add(new CardChance("gojail", 23));
-        card.add(new CardChance("goback2", -2));
-        card.add(new CardChance("forward2", 2));
-    }
+		card.add(new CardChance("forward3", 3));
+		card.add(new CardChance("goback3", -3));
+		card.add(new CardChance("gojail", 23));
+		card.add(new CardChance("goback2", -2));
+		card.add(new CardChance("forward2", 2));
+	}
+	/**
+	 * This method is to randomly get chance in card pool
+	 * @return a random chance
+	 */
+	public CardChance getCard() {
+		return card.get(rand.nextInt(5));
+	}
 
-    public CardChance getCard() {
-        return card.get(rand.nextInt(5));
-    }
-
-    public void getAction(Player player,MainServer server) {
-        switch (this.getCard().getName()) {
-            case "forward3":
-                player.setCurrentPosition(player.getCurrentPosition() + 3);
-                server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 3 blocks");
-                break;
-            case "goback3":
-                player.setCurrentPosition(player.getCurrentPosition() - 3);
-                server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 3 blocks");
-                break;
-            case "gojail":
-                player.setCurrentPosition(30);
-                server.sendSystemNormalMessage(player.getName(), "got the chance: Go to jail");
-                break;
-            case "goback2":
-                player.setCurrentPosition(player.getCurrentPosition() - 2);
-                server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 2 blocks");
-                break;
-            case "forward2":
-                player.setCurrentPosition(player.getCurrentPosition() + 2);
-                server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 2 blocks");
-                break;
-        }
-    }
+	/**
+	 * This method execute the action corresponding to the chance card drawn
+	 * 
+	 * @param player the player on the chance block
+	 * @param server the main server object
+	 */
+	public void getAction(Player player, MainServer server) {
+		switch (this.getCard().getName()) {
+		case "forward3":
+			player.setCurrentPosition(player.getCurrentPosition() + 3);
+			server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 3 blocks");
+			break;
+		case "goback3":
+			player.setCurrentPosition(player.getCurrentPosition() - 3);
+			server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 3 blocks");
+			break;
+		case "gojail":
+			player.setCurrentPosition(30);
+			server.sendSystemNormalMessage(player.getName(), "got the chance: Go to jail");
+			break;
+		case "goback2":
+			player.setCurrentPosition(player.getCurrentPosition() - 2);
+			server.sendSystemNormalMessage(player.getName(), "got the chance: Backward 2 blocks");
+			break;
+		case "forward2":
+			player.setCurrentPosition(player.getCurrentPosition() + 2);
+			server.sendSystemNormalMessage(player.getName(), "got the chance: Forward 2 blocks");
+			break;
+		}
+	}
 }

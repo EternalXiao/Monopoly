@@ -29,7 +29,7 @@ import java.util.Arrays;
 public class MainGameDesk {
 
 	/**
-	 * 棋盘从开始位置到结束位置坐标 x 和 y
+	 * x coordinate and y coordinate of the chessboard block
 	 */
 	public static final int[] xAxis = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
 			6, 7, 8, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
@@ -37,7 +37,7 @@ public class MainGameDesk {
 	public static final int[] yAxis = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 	/**
-	 * 棋子位置
+	 * Postion of the chess
 	 */
 	public static final int[] informationY = {0,0,1,1,2,2};
     public static final int[] informationX = {0,1,0,1,0,1};
@@ -57,7 +57,7 @@ public class MainGameDesk {
 
 
 	/**
-	 * 用户标识符位置
+	 * location of users identifier
 	 */
 	public static final int userXAxisTop = 0;
 	public static final int userYAxisTop = 3;
@@ -72,7 +72,7 @@ public class MainGameDesk {
 	public static final int userYAxisRight = 0;
 
 	/**
-	 * 用户房子位置
+	 * house location on the each block
 	 */
 	public static final int houseXAxisTop = 1;
 	public static final int houseYAxisTop = 3;
@@ -103,64 +103,60 @@ public class MainGameDesk {
 	public static final String[] CELL_INFO = { "", "Old Kent Road", "", "Whitechapel Road",
 			"", "King's Cross Station", "The Angel Islington", "", "Euston Road",
 			"Pentonville Road", "", "Pall Mall", "Electric Company", "Whitehall",
-			"Northumberland", "Marylebone Station", "Bow Street", "", "Marlborough Street",
+			"Northumberland Avenue", "Marylebone Station", "Bow Street", "", "Marlborough Street",
 			"Vine Street", "", "The Strand", "", "Fleet Street",
 			"Trafalgar Square", "Fenchurch st Station", "Leicester Square", "Coventry Street",
 			"Water Works", "Piccadilly", "", "Regent Street", "Oxford Street",
 			"", "Bond Street", "Liverpool Street Station", "", "Park Lane",
 			"", "Mayfair" };
 
-	/**
-	 * 设置棋盘大小为11*11
-	 */
-	private static String[][] gameDesk = new String[11][11];
+
 
 	/**
-	 * 图片层大小11*11
+	 * store block images
 	 */
 	private static ImageView[] imageViews = new ImageView[40];
 
 	/**
-	 * 存放棋子logo
+	 * store chess images
 	 */
 	private static ImageView[] playerChess = new ImageView[6];
-	/**
-	 * 存储棋子和房子
-	 */
+
 	private static GridPane[] chess = new GridPane[40];
-	/**
-	 * 创建两个长方形存放骰子object
-	 */
+
 	private static Rectangle diceLeft;
 	private static Rectangle diceRight;
 	/**
-	 * 设置当前两个骰子的值
+	 * store two dice values
 	 */
 	public static int leftDiceValue = 0;
 	public static int rightDiceValue = 0;
 	/**
-	 * 存放6张骰子的照片
+	 * store the dice image for each face
 	 */
 	private static ImagePattern[] dice = new ImagePattern[7];
 	private static final String[] diceOrder = { "0", "1", "2", "3", "4", "5", "6" };
-	/**
-	 * 用于存放默认骰子的照片
-	 */
 
+	/**
+	 * store the default image of dices
+	 */
 	private static ImagePattern diceDefault = new ImagePattern(new Image(ClientStage.IMAGEURL + "default.png"));
 	private static final String[] chessName = { "null","piece1", "piece2","piece3",
             "piece4","piece5","piece6"};
 
-	private static final String[] houseName = {"null.png","house1.png","house1.png","house1.png","house1.png","house1.png"};
+	private static final String[] houseName = {"null.png","house1.png","house2.png","house3.png","house4.png","house5.png"};
 	//private static final Rectangle[] houseLevel = new Rectangle[6];
 	//private static final ImageView[] houseLevel = new ImageView[6];
 
 	/**
-	 *设置点击效果
+	 *clickEffect
 	 */
 	static Rectangle[] clickEffectList = new Rectangle[40];
+
 	/**
-	 * 设置骰子的值
+	 * set the corresponding image for dices
+	 * @param leftV
+	 * @param rightV
 	 */
 	public static void setDiceValue(int leftV, int rightV) {
 		leftDiceValue = leftV;
@@ -170,7 +166,7 @@ public class MainGameDesk {
 
 	}
 
-	private static TextArea informationList;
+	private static TextArea informationList = new TextArea();
     private static Label systemMessage;
     private static MainClient client = null;
     private static GridPane playerInformationPane;
@@ -179,8 +175,9 @@ public class MainGameDesk {
     private static BorderPane mainPane;
 	Scene scene;
 	/**
-	 * 底部按钮区
+	 * set button area
 	 */
+	private static Button skipButton;
 	private static Button readyButton;
 	private static Button rollButton;
 	private static Button buyButton;
@@ -189,10 +186,12 @@ public class MainGameDesk {
 	private static TextField outputField;
 	private static Text nickName;
 	private static Text currentMoney;
+
+	/**
+	 * initialise the images in different parts
+	 */
 	public static void initialiseImage(){
-		/**
-		 * 设置用户标识符
-		 */
+
 		for (int i = 0; i < 7; i++) {
 			Image tempImage = (new Image(ClientStage.IMAGEURL + chessName[i] + ".png"));
 			userIcon[i]  = new ImageView(tempImage);
@@ -200,14 +199,6 @@ public class MainGameDesk {
 			userIcon[i].setFitHeight(25);
 		}
 
-		/**
-		 * 初始化房子照片
-		 */
-//		for(int i = 0 ; i<6;i++) {
-//			houseLevel[i] = new ImageView(new Image(ClientStage.IMAGEURL + houseName[i]));
-//			houseLevel[i].setFitHeight(25);
-//			houseLevel[i].setFitWidth(25);
-//		}
 
 		for(int i = 0; i<40; i++){
 			clickEffectList[i] = new Rectangle();
@@ -216,56 +207,69 @@ public class MainGameDesk {
 		}
 	}
 
+	/**
+	 * set clickEffect
+	 * @param root
+	 */
 	public static void setClickEffect(GridPane root){
 		for (int i =0; i < 40; i++){
 			if(!CELL_INFO[i].equals("")) {
 				root.add(clickEffectList[i], xAxis[i], yAxis[i]);
 				final int num = i;
 				clickEffectList[i].setOnMouseClicked(e -> {
-					Platform.runLater(() -> ClientStage.setMapBlockAlert(num));
+					if(client.getMap() != null){
+						Platform.runLater(() -> ClientStage.setMapBlockAlert(num));
+					}
+
 				});
 			}
 		}
 	}
 	/**
-	 * 初始化MainGameDesk
+	 * initialise MainGameDesk
 	 * 
 	 * @param client
 	 */
 	public MainGameDesk(MainClient client) {
-		this.client = client;
+		MainGameDesk.client = client;
 		mainPane = new BorderPane();
-		GridPane root = new GridPane();
-		initialiseImage();
-		drawCell(root);
-		drawDice(root);
-		drawChessPlace(root);
-
-		mainPane.setCenter(root);
+		initBoard();
 		displayPlayersInformation();
         displayChatBox();
         displaySystemMessage();
 
-        setClickEffect(root);
+        
 		scene = new Scene(mainPane, 1450, 850);
 		/**
-		 * 美化
+		 * craft scene using css file
 		 */
 		rollButton.getStyleClass().add("button-roll");
 		readyButton.getStyleClass().add("button-ready");
 		endButton.getStyleClass().add("button-endRound");
-
+		//skipButton.getStyleClass().add("");
 		outputField.getStyleClass().add("text-field");
 		informationList.getStyleClass().add("text-field");
 		systemMessage.getStyleClass().add("label-SystemMessage");
 		scene.getStylesheets().add("gui/MainGameDesk.css");
 	}
+	/**
+	 * initialise the board
+	 */
+	public static void initBoard() {
+		GridPane root = new GridPane();
+		mainPane.setCenter(root);
+		initialiseImage();
+		drawCell(root);
+		drawDice(root);
+		drawChessPlace(root);
+		setClickEffect(root);
+	}
 
 	/**
-	 * 画棋盘的每一个格子
+	 * draw blocks of the map
 	 * 
 	 * @param root
-	 * @param i
+	 * @param i the order of the block
 	 */
 	public static void drawSingleCell(GridPane root, int i) {
 
@@ -308,7 +312,8 @@ public class MainGameDesk {
 	}
 
 	/**
-	 * 制作骰子
+	 * make the dice
+	 * @param root add dice to the root
 	 */
 	public static void drawDice(GridPane root) {
 		diceLeft = new Rectangle(65, 65);
@@ -326,19 +331,22 @@ public class MainGameDesk {
 	}
 
 	/**
-	 * 摇动骰子
+	 * roll dices
 	 */
 	public synchronized static void toggleDice(Rectangle currentDice, int number) {
 		currentDice.setFill(dice[number]);
 	}
 
-
+	/**
+	 * draw celles for each block
+	 * @param root the board layout
+	 */
 	public static void drawCell(GridPane root) {
 		for (int i = 0; i < 40; i++)
 			drawSingleCell(root, i);
 	}
 	/**
-     * 制作单个玩家信息表
+     * make the list of every player
      * @param gridPane
      * @param number
      */
@@ -349,9 +357,9 @@ public class MainGameDesk {
 
         Image tempImage = (new Image(ClientStage.IMAGEURL + chessName[number + 1] + ".png"));
 		/**
-		 * 设置用户背景
+		 * set background of the user
 		 */
-		ImageView userBackgroundImage = new ImageView(new Image(ClientStage.IMAGEURL + "UserBackground.jpg"));
+		ImageView userBackgroundImage = new ImageView(new Image(ClientStage.IMAGEURL + "userBackground.jpg"));
 		userBackgroundImage.setFitWidth(150);
 		userBackgroundImage.setFitHeight(225);
 
@@ -371,7 +379,7 @@ public class MainGameDesk {
 		currentMoney.getStyleClass().add("text-money");
 
 		/**
-		 * 根据玩家状态更换玩家状态颜色
+		 * set user status
 		 */
 		if (!client.getPlayers().get(number).isAlive())
             state[number].setFill(Color.RED);
@@ -390,13 +398,12 @@ public class MainGameDesk {
 		stackPane.getChildren().addAll(userBackgroundImage,hBox);
         gridPane.add(stackPane,informationX[number],informationY[number]);
     }
-    /**
-     * 制作玩家信息表
-     */
-    public static void displayPlayersInformation(){
-        /**
-         * 使用GridPane存储显示玩家信息
-         */
+
+	/**
+	 * draw playerlist
+	 */
+	public static void displayPlayersInformation(){
+
         playerInformationPane = new GridPane();
         playerInformationPane.setVgap(5);
         playerInformationPane.setHgap(5);
@@ -410,10 +417,10 @@ public class MainGameDesk {
         mainPane.setLeft(playerInformationPane);
     }
 
-    /**
-     * 制作系统信息提示栏
-     */
-    public static void displayChatBox(){
+	/**
+	 * draw chatBox
+	 */
+	public static void displayChatBox(){
 
 		GridPane gridPane = new GridPane();
 		gridPane.setPadding(new Insets(10,10,10,10));
@@ -422,7 +429,6 @@ public class MainGameDesk {
 
         Label title = new Label("ChatBox");
 
-        informationList = new TextArea();
         informationList.setEditable(false);
         informationList.setWrapText(true);
         outputField = new TextField();
@@ -441,18 +447,21 @@ public class MainGameDesk {
         });
 
         /**
-         * 制作按钮
+         * create the button area under the chatbox
          */
         readyButton = new Button("Ready");
         rollButton = new Button("Roll");
         buyButton = new Button("Buy");
+        skipButton = new Button("skip");
         endButton = new Button ("End round");
 
         GridPane.setHalignment(readyButton,HPos.LEFT);
         GridPane.setHalignment(rollButton,HPos.LEFT);
 		GridPane.setHalignment(buyButton,HPos.RIGHT);
+		GridPane.setHalignment(skipButton, HPos.RIGHT);
         GridPane.setHalignment(endButton,HPos.RIGHT);
-//        readyButton.setTranslateX(20);
+        
+        skipButton.setTranslateX(-50);
 //        readyButton.setTranslateX(20);
 
 
@@ -460,6 +469,7 @@ public class MainGameDesk {
 		gridPane.add(informationList,0,1,2,1);
 		gridPane.add(outputField,0,3,2,1);
 		gridPane.add(readyButton,0,4);
+		gridPane.add(skipButton, 1, 4);
 		gridPane.add(rollButton,0,5);
 		gridPane.add(endButton, 1, 5);
 		gridPane.add(buyButton,1,4);
@@ -478,18 +488,28 @@ public class MainGameDesk {
         rollButton.addEventFilter(MouseEvent.MOUSE_CLICKED,clickButton);
         readyButton.setOnAction(e -> {
         	//ClientStage.setWinAlert(client);
+			//ClientStage.setLoseServer();
             client.send("Ready 1");
-
+            readyButton.setDisable(true);
         });
         buyButton.setOnAction(e->{
         	client.send("Buy 1");
         	buyButton.setDisable(true);
+        	skipButton.setDisable(true);
         });
         endButton.setOnAction(e->{
         	client.send("EndRound");
         	client.setFreeAction(false);
         	endButton.setDisable(true);
         });
+        
+        skipButton.setOnAction(e ->{
+        	client.send("Buy 0");
+        	skipButton.setDisable(true);
+        	buyButton.setDisable(true);
+        	
+        });
+        skipButton.setDisable(true);
 
 //        chatBox.setPadding(new Insets(10,10,10,10));
 //        chatBox.setPrefSize(300,800);
@@ -502,9 +522,9 @@ public class MainGameDesk {
     }
 
 	/**
-	 * 制作棋子摆放的位置
+	 * create a Gridpane to place each chess on every block
 	 * 
-	 * @param root
+	 * @param root main desk
 	 */
 	public static void drawChessPlace(GridPane root) {
 		for (int i = 0; i < 40; i++) {
@@ -514,6 +534,9 @@ public class MainGameDesk {
 		}
 	}
 
+	/**
+	 * load the chess
+	 */
 	public static void loadChess() {
 		for (int i = 0; i < client.getPlayers().size(); i++) {
 			playerChess[i] = new ImageView(new Image(ClientStage.IMAGEURL + chessName[i + 1] + ".png"));
@@ -522,6 +545,9 @@ public class MainGameDesk {
 		}
 	}
 
+	/**
+	 * load the player
+	 */
 	public static void initialisePlayer() {
 		for (int i = 0; i < client.getPlayers().size(); i++) {
 			chess[client.getPlayers().get(i).getPreviousPosition()].getChildren().remove(playerChess[i]);
@@ -529,6 +555,10 @@ public class MainGameDesk {
 		}
 	}
 
+	/**
+	 * update the player information shown in the player list
+	 * @param i order of the player
+	 */
 	public static void updatePlayer(int i) {
 		int curPos, prePos;
 		prePos = client.getPlayers().get(i).getPreviousPosition();
@@ -536,17 +566,17 @@ public class MainGameDesk {
 		for (int x = prePos; x != curPos; x = (x + 1) % 40) {
 			final int j = x;
 			Platform.runLater(() -> {
-				chess[j].getChildren().remove(playerChess[i]);
+				removePlayer(i,j);
 
-				if (((j + 1)>=0) && ((j + 1)<=10))		//棋子在棋盘下方
+				if (((j + 1)>=0) && ((j + 1)<=10))		//bottom
 					chess[(j + 1) % 40].add(playerChess[i], chessXAxisBottom[i], chessYAxisBottom[i]);
 
-				else if (((j + 1)> 10) && ((j + 1)<20))	//棋子在左方
+				else if (((j + 1)> 10) && ((j + 1)<20))	//left
 					chess[(j + 1) % 40].add(playerChess[i], chessXAxisLeft[i], chessYAxisLeft[i]);
 
-				else if(((j + 1)>= 20) && ((j + 1) <= 30))//棋子在上方
+				else if(((j + 1)>= 20) && ((j + 1) <= 30))//top
 					chess[(j + 1) % 40].add(playerChess[i], chessXAxisTop[i], chessYAxisTop[i]);
-				else									//棋子在右方
+				else									//right
 					chess[(j + 1) % 40].add(playerChess[i], chessXAxisRight[i], chessYAxisRight[i]);
 			});
 
@@ -558,6 +588,15 @@ public class MainGameDesk {
 			}
 		}
 	}
+
+	/**
+	 * remove the chess of the corrsponding player
+	 * @param id Id of the chess
+	 * @param pos the order of the block
+	 */
+	public static void removePlayer(int id,int pos) {
+		chess[pos].getChildren().remove(playerChess[id]);
+	}
 	public static void displaySystemMessage() {
 		HBox systemMessageHB = new HBox();
 		systemMessageHB.setAlignment(Pos.CENTER);
@@ -566,8 +605,11 @@ public class MainGameDesk {
 		systemMessageHB.getChildren().add(systemMessage);
 		mainPane.setTop(systemMessageHB);
 	}
+
 	/**
-	 * 购买地皮并且设置用户标识符
+	 * buy the block and set the player identifier
+	 * @param currentPlayer
+	 * @param position the location of the block
 	 */
 	public static void setBlock(int currentPlayer, int position){
 
@@ -575,23 +617,27 @@ public class MainGameDesk {
 		ImageView userOwner  = new ImageView(tempImage);
 		Pane pane = new Pane();
 		pane.getChildren().add(userOwner);
-		pane.setStyle("-fx-border-color: #AB4642");
+		if (currentPlayer == 0)
+			pane.setVisible(false);
+		else
+			pane.setVisible(true);
+		pane.setStyle("-fx-border-color: #AB4642");//sold
 		userOwner.setFitWidth(25);
 		userOwner.setFitHeight(25);
 
 
-		if (((position)>=0) && ((position)<=10)) {    //棋子在棋盘下方
+		if (((position)>=0) && ((position)<=10)) {    //bottom
 			chess[position].getChildren().remove(ClientStage.findElement(userXAxisBottom,userYAxisBottom,chess[position]));
 			chess[position].add(pane,userXAxisBottom,userYAxisBottom);
 
-		}else if (((position  )> 10) && ((position  )<20)) {    //棋子在棋盘左方
+		}else if (((position  )> 10) && ((position  )<20)) {    //left
 			chess[position].getChildren().remove(ClientStage.findElement(userXAxisLeft,userYAxisLeft,chess[position]));
 			chess[position].add(pane,userXAxisLeft,userYAxisLeft);
 
-		}else if(((position  )>= 20) && ((position  ) <= 30)) {//棋子在棋盘上方
+		}else if(((position  )>= 20) && ((position  ) <= 30)) {//top
 			chess[position].getChildren().remove(ClientStage.findElement(userXAxisTop,userYAxisTop,chess[position]));
 			chess[position].add(pane,userXAxisTop,userYAxisTop);
-		}else {                                    //棋子在棋盘右方
+		}else {                                    //right
 			chess[position].getChildren().remove(ClientStage.findElement(userXAxisRight,userYAxisRight,chess[position]));
 			chess[position].add(pane,userXAxisRight,userYAxisRight);
 		}
@@ -599,7 +645,7 @@ public class MainGameDesk {
 	}
 
 	/**
-	 * 建造/销毁房屋
+	 * build/destroy house
 	 */
 	public static void setdHouse(int level,int position){
 		Image tempImage = (new Image(ClientStage.IMAGEURL + houseName[level]));
@@ -607,18 +653,18 @@ public class MainGameDesk {
 		houseBuilder.setFitWidth(25);
 		houseBuilder.setFitHeight(25);
 
-		if (((position)>=0) && ((position)<=10)) {        //棋子在棋盘下方
+		if (((position)>=0) && ((position)<=10)) {        //bottom
 			chess[position].getChildren().remove(ClientStage.findElement(houseXAxisBottom,houseYAxisBottom,chess[position]));
 			chess[position].add(houseBuilder,houseXAxisBottom,houseYAxisBottom);
 
-		}else if (((position  )> 10) && ((position  )<20)) {    //棋子在棋盘左方
+		}else if (((position  )> 10) && ((position  )<20)) {    //left
 			chess[position].getChildren().remove(ClientStage.findElement(houseXAxisLeft,houseYAxisLeft,chess[position]));
 			chess[position].add(houseBuilder,houseXAxisLeft,houseYAxisLeft);
 
-		}else if(((position  )>= 20) && ((position  ) <= 30)) {//棋子在棋盘上方
+		}else if(((position  )>= 20) && ((position  ) <= 30)) {//top
 			chess[position].getChildren().remove(ClientStage.findElement(houseXAxisTop,houseYAxisTop,chess[position]));
 			chess[position].add(houseBuilder,houseXAxisTop,houseYAxisTop);
-		}else {                                    //棋子在棋盘右方
+		}else {                                    //right
 
 			chess[position].getChildren().remove(ClientStage.findElement(houseXAxisRight,houseYAxisRight,chess[position]));
 			chess[position].add(houseBuilder,houseXAxisRight,houseYAxisRight);
@@ -626,9 +672,7 @@ public class MainGameDesk {
 
 	}
 
-	/**
-	 * @return
-	 */
+
 	public static Button getReadyButton() {
 		return readyButton;
 	}
@@ -637,6 +681,9 @@ public class MainGameDesk {
 	}
 	public static Button getBuyButton() {
 		return buyButton;
+	}
+	public static Button getSkipButton() {
+		return skipButton;
 	}
 
 	public static Button getEndButton() {

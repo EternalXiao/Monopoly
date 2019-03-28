@@ -1,5 +1,7 @@
 package MonopolyServer.game;
-
+/**
+ * This enum class to define the street colour
+ */
 enum Color {
     Brown,
     LightBlue,
@@ -10,11 +12,21 @@ enum Color {
     Green,
     DarkBlue;
 }
-
+/**
+ * This class is a subclass of Property which defines the street block
+ * It has two additional field variables, houseNum and color
+ */
 public class Street extends Property {
     private int houseNum;
     private Color color;
-
+    /**
+     * Constructor for Street
+     * @param position the position of the block
+     * @param name the name of the block
+     * @param type the type of the block
+     * @param color the colour of the block
+     * @param price the price of the block
+     */
     public Street(int position, String name, BlockType type, Color color, int price) {
         super(position, name, type, price);
         this.houseNum = 0;
@@ -32,13 +44,23 @@ public class Street extends Property {
     public void setHouseNum(int houseNum) {
         this.houseNum = houseNum;
     }
+    /**
+     * This method allows the street to upgrade
+     */
     public void upgradeHouse() {
     	this.houseNum++;
     }
+    /**
+     * This method allows the street to degrade
+     */
     public void degradeHouse() {
     	this.houseNum--;
     }
-
+    /**
+     * This method calculates the total number of streets in this
+     * street group 
+     * @return the total number of streets in the same group
+     */
     public int getSameColorStreetNum() {
         int num = 0;
 
@@ -55,12 +77,15 @@ public class Street extends Property {
         }
         return num;
     }
-
+    /**
+     * This method computes the cost for the street to upgrade
+     * @return
+     */
     public int getHouseCost() {
         int cost = 0;
 
         switch (this.getName()) {
-            case "Old kent Road": {
+            case "Old Kent Road": {
                 cost = 60;
                 break;
             }
@@ -68,7 +93,7 @@ public class Street extends Property {
                 cost = 60;
                 break;
             }
-            case "The angel Islington": {
+            case "The Angel Islington": {
                 cost = 100;
                 break;
             }
@@ -151,7 +176,10 @@ public class Street extends Property {
         }
         return cost;
     }
-
+    /**
+     * This method calculates the total rent for this street
+     * @return the total rent
+     */
     public int getStreetRent() {
         int totalRent = 0;
 

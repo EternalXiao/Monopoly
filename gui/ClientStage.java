@@ -17,10 +17,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+/**
+ * This class use to switch the scene
+ */
 public class ClientStage extends Stage {
 
-	public static final String IMAGEURL = "file:src/image/";
-
+	public static final String IMAGEURL = "file:src/image/";// image/
 
 	private LoginPage loginPage;
 	private SignUpPage signUpPage;
@@ -34,61 +36,103 @@ public class ClientStage extends Stage {
 		this.setResizable(false);
 		this.setLoginPage();
 		this.show();
-//		this.setOnCloseRequest(e->{
-//			client.send("Exit");
-//			this.close();
-//		});
+		this.setOnCloseRequest(e -> {
+			if (client.getInContact())
+				client.send("Exit");
+			this.close();
+		});
+
 	}
+
+	/**
+	 * get the login page
+	 * @return login page
+	 */
 	public LoginPage getLoginPage() {
 		return this.loginPage;
 	}
+
+	/**
+	 * get the SignUpPage
+	 * @return SignUpPage
+	 */
 	public SignUpPage getSignUpPage() {
 		return this.signUpPage;
 	}
+
+	/**
+	 * get the MainGameDesk
+	 * @return MainGameDesk
+	 */
 	public MainGameDesk getMainGameDesk() {
 		return this.mainGameDesk;
 	}
+
+	/**
+	 * set the login page
+	 */
 	public void setLoginPage() {
 		loginPage = new LoginPage(client, this);
 		this.setScene(loginPage.getScene());
 	}
 
+	/**
+	 * set the SignUpPage
+	 */
 	public void setSignUpPage() {
 		this.signUpPage = new SignUpPage(client, this);
-		this.setScene(this.signUpPage.getScene());	
+		this.setScene(this.signUpPage.getScene());
 	}
 
+	/**
+	 * set the MainGameDesk
+	 */
 	public void setGameDeskPage() {
 		mainGameDesk = new MainGameDesk(client);
 		this.setResizable(false);
 		this.setScene(mainGameDesk.scene);
 	}
 
-	public static void setMapBlockAlert(int pos){
+	/**
+	 * set the MapBlockAlert pop-up window
+	 * @param pos the location of the specified block
+	 */
+	public static void setMapBlockAlert(int pos) {
 		Stage alertStage = new Stage();
-		/**
-		 * 禁止选择其它窗口
-		 */
+
 		alertStage.initModality(Modality.APPLICATION_MODAL);
 		alertStage.setTitle(MainGameDesk.CELL_INFO[pos]);
-		MapBlockAlert mapBlockAlert = new MapBlockAlert(pos,client);
+		MapBlockAlert mapBlockAlert = new MapBlockAlert(pos, client);
 		alertStage.setScene(mapBlockAlert.scene);
 		alertStage.showAndWait();
 
 	}
 
-	public void setWinAlert(){
+	/**
+	 * set the WinAlert pop-up window
+	 */
+	public void setWinAlert() {
 		Stage winAlertStage = new Stage();
 		winAlertStage.setTitle("Congratulations!*");
 		winAlertStage.initModality(Modality.APPLICATION_MODAL);
-		WinAlert winAlert = new WinAlert(client);
+		WinAlert winAlert = new WinAlert(client,winAlertStage);
 		winAlertStage.setScene(winAlert.scene);
 		winAlertStage.showAndWait();
+		
 	}
 
-	/***********************************************************************************************************************/
-	/** Used by current class **/
-	/***********************************************************************************************************************/
+	/**
+	 * set the LoseServer pop-up window
+	 */
+	public static void setLoseServer() {
+		Stage loseServerStage = new Stage();
+		loseServerStage.setTitle("Error");
+		loseServerStage.initModality(Modality.APPLICATION_MODAL);
+		LoseServerAlert loseServerAlert = new LoseServerAlert();
+		loseServerStage.setScene(loseServerAlert.scene);
+		loseServerStage.showAndWait();
+	}
+
 	public static Node findElement(int col, int row, GridPane root) {
 		Node result = null;
 		for (Node node : root.getChildren()) {
@@ -100,7 +144,4 @@ public class ClientStage extends Stage {
 		return result;
 	}
 
-	/***********************************************************************************************************************/
-	/** Used by MainClient class **/
-	/***********************************************************************************************************************/
 }

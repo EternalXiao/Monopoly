@@ -17,7 +17,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 public class LoginPage {
 	private Button login = new Button("Login");
@@ -53,6 +52,7 @@ public class LoginPage {
 		passwordField.setMaxWidth(200);
 		passwordField.setTranslateX(10);
 		login.setTranslateX(50);
+		GridPane.setHalignment(prompt, HPos.CENTER);
 		GridPane.setHalignment(loginLogoView, HPos.CENTER);
 		signUp.setUnderline(true);
 		GridPane.setHalignment(signUp, HPos.RIGHT);
@@ -74,8 +74,10 @@ public class LoginPage {
 				this.prompt.setText("Please enter username and password");
 				this.prompt.setTextFill(Color.RED);
 				this.passwordField.clear();
-			}
-			else {
+			} else if (!usernameField.getText().matches("[a-zA-z0-9]+")
+					|| !passwordField.getText().matches("[a-zA-z0-9]+")) {
+				this.loginFailed();
+			} else {
 				String username = usernameField.getText();
 				String password = passwordField.getText();
 				client.login(username, password);
@@ -88,8 +90,10 @@ public class LoginPage {
 					this.prompt.setText("Please enter username and password");
 					this.prompt.setTextFill(Color.RED);
 					this.passwordField.clear();
-				}
-				else {
+				} else if (!usernameField.getText().matches("[a-zA-z0-9]+")
+						|| !passwordField.getText().matches("[a-zA-z0-9]+")) {
+					this.loginFailed();
+				} else {
 					String username = usernameField.getText();
 					String password = passwordField.getText();
 					client.login(username, password);
@@ -101,20 +105,12 @@ public class LoginPage {
 			this.clientStage.setSignUpPage();
 		});
 
-//		this.signUp.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
-////			this.signUp.setStyle("font-weight: bold");
-//			this.signUp.setId("bold-label");
-//		});
-//		this.signUp.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
-//			this.signUp.setStyle("font-weight:regular");
-//			this.signUp.setId("font-size");
-//		});
 		exit.setOnAction(e -> {
 			System.exit(1);
 		});
 		scene = new Scene(gridPane);
 		/**
-		 * 美化
+		 * craft the scene
 		 */
 		login.getStyleClass().add("button-login");
 		usernameText.getStyleClass().add("text-general");
@@ -128,20 +124,43 @@ public class LoginPage {
 		return this.scene;
 	}
 
+	/**
+	 * inform the player that username or password is incorrect
+	 */
 	public void loginFailed() {
 		this.prompt.setText("Incorrect username or password");
 		this.prompt.setTextFill(Color.RED);
 	}
+
+	/**
+	 * inform the player that Account is already online
+	 */
 	public void accountOnline() {
 		this.prompt.setText("Account is already online");
 		this.prompt.setTextFill(Color.RED);
 	}
+
+	/**
+	 * inform the player that Game is already start
+	 */
 	public void gameIsStart() {
 		this.prompt.setText("Game is already start");
 		this.prompt.setTextFill(Color.RED);
 	}
+
+	/**
+	 * inform the player that Game desk is already full
+	 */
 	public void gameDeskFull() {
 		this.prompt.setText("Game desk is already full");
+		this.prompt.setTextFill(Color.RED);
+	}
+
+	/**
+	 * inform the player that Server connection timeout
+	 */
+	public void connectionTimeout() {
+		this.prompt.setText("Server connection timeout");
 		this.prompt.setTextFill(Color.RED);
 	}
 

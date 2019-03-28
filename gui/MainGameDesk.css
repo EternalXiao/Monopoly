@@ -13,7 +13,7 @@
 
 .label-SystemMessage{
     -fx-text-fill: #AB4642;
-    -fx-text-size: 25pt;
+    -fx-font-size: 25pt;
     -fx-font-family: 'Lucida Bright';
 }
 .text-field{
@@ -34,7 +34,10 @@
     -fx-font-weight: bold;
 }
 
-
+.text-loseConnect{
+    -fx-text-fill: #F8F8F8;
+    -fx-font-family: 'Lucida Bright';
+}
 .text-nickName{
     -fx-font-weight: bold;
     -fx-font-size: 10;

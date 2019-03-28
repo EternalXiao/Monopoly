@@ -1,8 +1,13 @@
 package MonopolyServer.game;
-
+/**
+ * This class is to define the game map which stores the
+ * the informatio for each block
+ */
 public class GameMap {
     private Block[] map;
-
+    /**
+     * Constructor for GameMap
+     */
     public GameMap() {
         map = new Block[40];
         initMap();
@@ -11,7 +16,9 @@ public class GameMap {
     public Block[] getMap() {
         return this.map;
     }
-
+    /**
+     * This method is to initialise the map
+     */
     private void initMap() {
         map[0] = new Block(0, "Go", BlockType.Go);
         map[1] = new Street(1, "Old Kent Road", BlockType.Street, Color.Brown, 60);
@@ -50,7 +57,7 @@ public class GameMap {
         map[34] = new Street(34, "Bond Street", BlockType.Street, Color.Green, 320);
         map[35] = new Railroad(35, "Liverpool Street Station", BlockType.Railroad, 200);
         map[36] = new Chance(36, "Chance", BlockType.Chance);
-        map[37] = new Street(37, "Park Lane", BlockType.Street, Color.DarkBlue,  350);
+        map[37] = new Street(37, "Park Lane", BlockType.Street, Color.DarkBlue, 350);
         map[38] = new Tax(38, "Super Tax", BlockType.Tax, 100);
         map[39] = new Street(39, "Mayfair", BlockType.Street, Color.DarkBlue, 400);
     }

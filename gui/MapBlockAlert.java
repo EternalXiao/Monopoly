@@ -1,6 +1,7 @@
 package gui;
 
 import MonopolyClient.MainClient;
+import MonopolyClient.game.BlockType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,10 +19,30 @@ public class MapBlockAlert {
 
     Scene scene;
     static Button upgradeButton = new Button("Upgrade");
-    static Button degradeButton = new Button("Degrade");
+    public static Button getUpgradeButton() {
+		return upgradeButton;
+	}
+
+	public static void setUpgradeButton(Button upgradeButton) {
+		MapBlockAlert.upgradeButton = upgradeButton;
+	}
+
+	public static Button getDegradeButton() {
+		return degradeButton;
+	}
+
+	public static void setDegradeButton(Button degradeButton) {
+		MapBlockAlert.degradeButton = degradeButton;
+	}
+
+	static Button degradeButton = new Button("Degrade");
     static Rectangle infomationImage = new Rectangle(400,400);
 
-
+    /**
+     * set the MapBlockAlert pop-up window
+     * @param pos the position of the specified block
+     * @param client
+     */
     public MapBlockAlert(int pos,MainClient client){
     	String name = MainGameDesk.CELL_INFO[pos];
         HBox layout = new HBox();
@@ -51,6 +72,9 @@ public class MapBlockAlert {
         else {
         	upgradeButton.setDisable(true);
         	degradeButton.setDisable(true);
+        }
+        if(client.getMap()[pos].getType() != BlockType.Street) {
+        	upgradeButton.setDisable(true);
         }
         upgradeButton.setOnAction(e->{
         	client.send("Build "+ pos);

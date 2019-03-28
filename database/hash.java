@@ -1,5 +1,6 @@
 package database;
 
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -15,12 +16,6 @@ public class hash {
         String passwordToHash = "abc123";
 
         byte[] salt = getSalt();
-
-        //String securePassword = get_SHA_1_SecurePassword(passwordToHash, salt);
-
-        //System.out.println(securePassword);
-
-
 
         String securePassword = get_SHA_256_SecurePassword(passwordToHash, salt);
         a.add(securePassword);
@@ -38,6 +33,13 @@ public class hash {
 
     }
 
+    /**
+     * This method is used to generate a hash code base on the origin password and 
+     * the random salt value.
+     * @param passwordToHash
+     * @param salt
+     * @return The hash code is returned.
+     */
     public static String get_SHA_256_SecurePassword(String passwordToHash, byte[] salt)
 
     {
@@ -78,7 +80,11 @@ public class hash {
 
     }
 
-
+    /**
+     * This method is used to generate a random salt value.
+     * @return The random salt value is returned.
+     * @throws NoSuchAlgorithmException
+     */
     public static byte[] getSalt() throws NoSuchAlgorithmException
 
     {

@@ -1,11 +1,24 @@
 package MonopolyServer.game;
-
+/**
+ * This class is a subclass of Property which defines the railroad block
+ * It is does not have additional field variable.
+ */
 public class Railroad extends Property {
+	/**
+	 * Constructor for Property
+	 * @param position the position of the block
+	 * @param name the name of the block
+	 * @param type the type of the block
+	 * @param price the price of the block
+	 */
     public Railroad(int position, String name, BlockType type, int price) {
         super(position, name, type, price);
-
     }
-
+    /**
+     * This method computes the total rent for this railroad
+     * @param amount the number of railroads owned
+     * @return the total rent
+     */
     public int getTotalRent(int amount) {
         int totalRent = 0;
 
